@@ -11,19 +11,19 @@ interface ExerciseDao {
     @Insert
     fun insert(exercise: Exercise)
 
-    @Query("SELECT * FROM exercise_table WHERE name = :name LIMIT 1")
+    @Query("SELECT * FROM exercise WHERE name = :name LIMIT 1")
     fun getExerciseByName(name: String): Exercise?
 
-    @Query("SELECT * FROM exercise_table WHERE id = :id LIMIT 1")
+    @Query("SELECT * FROM exercise WHERE id = :id LIMIT 1")
     fun getExerciseById(id: Int): Exercise?
 
-    @Query("SELECT * FROM exercise_table")
+    @Query("SELECT * FROM exercise")
     fun getAllExercises(): List<Exercise>  // Correct return type
 
-    @Query("DELETE FROM exercise_table")
+    @Query("DELETE FROM exercise")
     fun deleteAll()  // Correct return type
 
-    @Query("DELETE FROM exercise_table WHERE factory = 0")
+    @Query("DELETE FROM exercise WHERE factory = 0")
     fun deleteNonFactoryExercises()
 
 }

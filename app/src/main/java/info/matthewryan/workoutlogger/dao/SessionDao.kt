@@ -7,15 +7,15 @@ import info.matthewryan.workoutlogger.model.SessionWithActivities
 @Dao
 interface SessionDao {
 
-    @Query("SELECT * FROM session_table WHERE id = :sessionId LIMIT 1")
+    @Query("SELECT * FROM session WHERE id = :sessionId LIMIT 1")
     fun getSessionById(sessionId: Long): Session?
 
     @Transaction
-    @Query("SELECT * FROM session_table")
+    @Query("SELECT * FROM session")
     fun getAllSessions(): List<SessionWithActivities>
 
     @Transaction
-    @Query("SELECT * FROM session_table WHERE id = :sessionId")
+    @Query("SELECT * FROM session WHERE id = :sessionId")
     fun getSessionWithActivities(sessionId: Long): SessionWithActivities?
 
     @Insert
@@ -28,10 +28,10 @@ interface SessionDao {
     fun deleteSession(session: Session)
 
     // 🔴 Add this method:
-    @Query("DELETE FROM session_table WHERE id = :sessionId")
+    @Query("DELETE FROM session WHERE id = :sessionId")
     fun deleteSessionById(sessionId: Long)
 
-    @Query("UPDATE session_table SET endTimestamp = :endTime WHERE id = :sessionId")
+    @Query("UPDATE session SET endTimestamp = :endTime WHERE id = :sessionId")
     fun markSessionAsEnded(sessionId: Long, endTime: Long)
 
 }
