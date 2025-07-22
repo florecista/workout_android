@@ -11,6 +11,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import info.matthewryan.workoutlogger.databinding.ActivityMainBinding
 import info.matthewryan.workoutlogger.model.Exercise
+import info.matthewryan.workoutlogger.model.ExerciseType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -126,6 +127,7 @@ class MainActivity : AppCompatActivity() {
                     Exercise(name = "Pull-Up", factory = true, isUnilateral = false, isTimed = false, duration = null),
                     Exercise(name = "Push-Up", factory = true, isUnilateral = false, isTimed = false, duration = null),
                     Exercise(name = "Rack Pull", factory = true, isUnilateral = false, isTimed = false, duration = null),
+                    Exercise(name = "Run", factory = true, isUnilateral = false, isTimed = false, duration = null, type = ExerciseType.CARDIO),
                     Exercise(name = "Reverse Grip Lat Pulldown", factory = true, isUnilateral = false, isTimed = false, duration = null),
                     Exercise(name = "Rope Pulls To Face", factory = true, isUnilateral = false, isTimed = false, duration = null),
                     Exercise(name = "Seated Row", factory = true, isUnilateral = false, isTimed = false, duration = null),

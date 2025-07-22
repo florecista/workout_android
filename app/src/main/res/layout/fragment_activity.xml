@@ -53,7 +53,7 @@
                 android:enabled="false" />
 
             <EditText
-                android:id="@+id/editTextWeight"
+                android:id="@+id/editTextOne"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_columnWeight="1"
@@ -63,7 +63,7 @@
                 android:inputType="numberDecimal" />
 
             <EditText
-                android:id="@+id/editTextReps"
+                android:id="@+id/editTextTwo"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_columnWeight="1"

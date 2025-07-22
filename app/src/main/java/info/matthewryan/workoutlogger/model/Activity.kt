@@ -22,10 +22,12 @@ data class Activity(
     val reps: Int,
     val weight: Double,
     val timestamp: Long,
-    val sessionId: Long
+    val sessionId: Long,
+    val distance: Double? = null,        // in kilometers
+    val durationInSeconds: Int? = null   // duration stored as total seconds
 ) {
     override fun toString(): String {
-        return "Activity{id=$id, exerciseId=$exerciseId, reps=$reps, weight=$weight, timestamp=$timestamp, sessionId=$sessionId}"
+        return "Activity{id=$id, exerciseId=$exerciseId, reps=$reps, weight=$weight, timestamp=$timestamp, sessionId=$sessionId, distance=$distance, durationInSeconds=$durationInSeconds}"
     }
 
     override fun equals(other: Any?): Boolean {
@@ -37,7 +39,9 @@ data class Activity(
                 reps == other.reps &&
                 weight == other.weight &&
                 timestamp == other.timestamp &&
-                sessionId == other.sessionId
+                sessionId == other.sessionId &&
+                distance == other.distance &&
+                durationInSeconds == other.durationInSeconds
     }
 
     override fun hashCode(): Int {
@@ -45,6 +49,11 @@ data class Activity(
         val timestampHash = (timestamp xor (timestamp ushr 32)).toInt()
         val sessionIdHash = (sessionId xor (sessionId ushr 32)).toInt()
 
-        return 31 * (31 * (31 * (31 * (31 + idHash) + exerciseId) + reps) + weight.hashCode()) + timestampHash + sessionIdHash
+        var result = 31 * (31 * (31 * (31 * (31 + idHash) + exerciseId) + reps) + weight.hashCode())
+        result = 31 * result + timestampHash
+        result = 31 * result + sessionIdHash
+        result = 31 * result + (distance?.hashCode() ?: 0)
+        result = 31 * result + (durationInSeconds ?: 0)
+        return result
     }
 }

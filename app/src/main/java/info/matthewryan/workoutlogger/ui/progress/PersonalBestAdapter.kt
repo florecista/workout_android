@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import info.matthewryan.workoutlogger.databinding.ItemPersonalBestBinding
+import info.matthewryan.workoutlogger.model.ExerciseType
 import info.matthewryan.workoutlogger.model.PersonalBest
 import java.text.SimpleDateFormat
 import java.util.*
@@ -33,8 +34,20 @@ class PersonalBestAdapter : RecyclerView.Adapter<PersonalBestAdapter.ViewHolder>
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: PersonalBest) {
-            binding.textReps.text = "${item.reps} reps"
-            binding.textWeight.text = "${item.weight} kg"
+            val type = item.exercise?.type ?: ExerciseType.STRENGTH
+            when (type) {
+                ExerciseType.STRENGTH -> {
+                    binding.textOne.text = "${item.weight} kg"
+                    binding.textTwo.text = "${item.reps} reps"
+                }
+                ExerciseType.CARDIO -> {
+                    val minutes = (item.duration?.toInt() ?: 0) / 60
+                    val seconds = (item.duration?.toInt() ?: 0) % 60
+                    binding.textOne.text = "${item.distance} km"
+                    binding.textTwo.text = String.format("%02d:%02d", minutes, seconds)
+                }
+            }
+
             binding.textDate.text = dateFormat.format(Date(item.timestamp))
         }
     }

@@ -15,6 +15,7 @@ import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import info.matthewryan.workoutlogger.AppDatabase
 import info.matthewryan.workoutlogger.databinding.FragmentProgressDetailBinding
 import info.matthewryan.workoutlogger.model.Exercise
+import info.matthewryan.workoutlogger.dao.ExerciseRepository.calculatePersonalBests
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -87,9 +88,10 @@ class ProgressDetailFragment : Fragment() {
             binding.lineChart.invalidate()
 
             // Populate personal best list
-            val personalBests = withContext(Dispatchers.IO) {
-                dao.getPersonalBestsForExercise(exercise.id)
+            val activities = withContext(Dispatchers.IO) {
+                dao.getActivitiesForExercise(exercise.id)
             }
+            val personalBests = calculatePersonalBests(exercise, activities)
             adapter.submitList(personalBests)
         }
     }
