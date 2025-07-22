@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:paddingTop="32dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- Units of Measure -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Units of Measure"
+            android:textStyle="bold"
+            android:paddingTop="16dp"
+            android:paddingBottom="4dp" />
+
+        <RadioGroup
+            android:id="@+id/radioGroupUnits"
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/radioKg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Kilograms"
+                android:checked="true" />
+
+            <RadioButton
+                android:id="@+id/radioLbs"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pounds" />
+        </RadioGroup>
+
+        <!-- Clear Activities -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Clear Activities"
+            android:textStyle="bold"
+            android:paddingTop="24dp"
+            android:paddingBottom="4dp" />
+
+        <Button
+            android:id="@+id/buttonClearActivities"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Clear" />
+
+        <!-- Factory Reset -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Factory Reset"
+            android:textStyle="bold"
+            android:paddingTop="24dp"
+            android:paddingBottom="4dp" />
+
+        <Button
+            android:id="@+id/buttonFactoryReset"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reset"
+            android:enabled="false" />
+
+        <!-- Theme Selector -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="App Theme"
+            android:textStyle="bold"
+            android:paddingTop="24dp"
+            android:paddingBottom="4dp" />
+
+        <RadioGroup
+            android:id="@+id/radioGroupTheme"
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/radioLight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Light" />
+
+            <RadioButton
+                android:id="@+id/radioDark"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dark" />
+
+            <RadioButton
+                android:id="@+id/radioSystem"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="System" />
+        </RadioGroup>
+
+    </LinearLayout>
+</ScrollView>

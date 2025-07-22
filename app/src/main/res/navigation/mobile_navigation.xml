@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/navigation_home">
+
+    <!-- Home Fragment -->
+    <fragment
+        android:id="@+id/navigation_home"
+        android:name="info.matthewryan.workoutlogger.ui.home.HomeFragment"
+        android:label="@string/title_home"
+        tools:layout="@layout/fragment_home">
+        <!-- Action to ActivityFragment -->
+        <action
+            android:id="@+id/action_homeFragment_to_activityFragment"
+            app:destination="@id/navigation_activity" />
+    </fragment>
+
+    <!-- ExerciseFragment (ProgressFragment) -->
+    <fragment
+        android:id="@+id/navigation_exercises"
+        android:name="info.matthewryan.workoutlogger.ui.exercises.ExerciseFragment"
+        android:label="@string/title_exercises"
+        tools:layout="@layout/fragment_exercise">
+        <!-- Action to navigate to ProgressDetailFragment -->
+        <action
+            android:id="@+id/action_exerciseFragment_to_exerciseDetailFragment"
+            app:destination="@id/exerciseDetailFragment" />
+    </fragment>
+
+    <!-- Exercise Detail Fragment (receives Exercise) -->
+    <fragment
+        android:id="@+id/exerciseDetailFragment"
+        android:name="info.matthewryan.workoutlogger.ui.exercises.ExerciseDetailFragment"
+        android:label="Exercise Detail"
+        tools:layout="@layout/fragment_exercise_detail">
+        <argument
+            android:name="exercise"
+            app:argType="info.matthewryan.workoutlogger.model.Exercise" />
+    </fragment>
+
+    <!-- Progress Fragment (ProgressFragment) -->
+    <fragment
+        android:id="@+id/navigation_progress"
+        android:name="info.matthewryan.workoutlogger.ui.progress.ProgressFragment"
+        android:label="@string/title_progress"
+        tools:layout="@layout/fragment_progress">
+        <!-- Action to navigate to ProgressDetailFragment -->
+        <action
+            android:id="@+id/action_progressFragment_to_progressDetailFragment"
+            app:destination="@id/progressDetailFragment" />
+    </fragment>
+
+    <!-- Progress Detail Fragment (receives Exercise) -->
+    <fragment
+        android:id="@+id/progressDetailFragment"
+        android:name="info.matthewryan.workoutlogger.ui.progress.ProgressDetailFragment"
+        android:label="Progress Detail"
+        tools:layout="@layout/fragment_progress_detail">
+        <argument
+            android:name="exercise"
+            app:argType="info.matthewryan.workoutlogger.model.Exercise" />
+    </fragment>
+
+    <!-- History Fragment -->
+    <fragment
+        android:id="@+id/navigation_history"
+        android:name="info.matthewryan.workoutlogger.ui.history.HistoryFragment"
+        android:label="@string/title_history"
+        tools:layout="@layout/fragment_history">
+
+        <action
+            android:id="@+id/action_historyFragment_to_sessionDetailFragment"
+            app:destination="@id/sessionDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/sessionDetailFragment"
+        android:name="info.matthewryan.workoutlogger.ui.history.SessionDetailFragment"
+        android:label="Session Detail">
+        <argument
+            android:name="sessionId"
+            app:argType="long" />
+    </fragment>
+
+    <!-- Activity Fragment (New) -->
+    <fragment
+        android:id="@+id/navigation_activity"
+        android:name="info.matthewryan.workoutlogger.ui.activities.ActivityFragment"
+        android:label="Activity"
+        tools:layout="@layout/fragment_activity">
+        <action
+            android:id="@+id/action_activityFragment_to_homeFragment"
+            app:destination="@id/navigation_home" />
+        <action
+            android:id="@+id/action_activityFragment_to_sessionLogFragment"
+            app:destination="@id/navigation_session_log" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_session_log"
+        android:name="info.matthewryan.workoutlogger.ui.sessionlog.SessionLogFragment"
+        android:label="Session Log"
+        tools:layout="@layout/fragment_session_log" />
+
+    <fragment
+        android:id="@+id/navigation_config"
+        android:name="info.matthewryan.workoutlogger.ui.config.ConfigFragment"
+        android:label="Config"
+        tools:layout="@layout/fragment_config" />
+</navigation>

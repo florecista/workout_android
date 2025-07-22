@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".ui.activities.ActivityFragment">
+
+    <LinearLayout
+        android:id="@+id/mainLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <!-- LineChart in the top half -->
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/chart1"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.3"
+            android:layout_marginBottom="0dp" />
+
+        <!-- GridLayout for calculator-like form -->
+        <GridLayout
+            android:id="@+id/numberPadLayout"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.6"
+            android:columnCount="3"
+            android:rowCount="7"
+            android:padding="8dp">
+
+            <!-- Row 1: Spinner for Exercises -->
+            <Spinner
+                android:id="@+id/spinnerExercises"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnSpan="3"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp" />
+
+            <!-- Row 2: EditTexts for 'Set', 'KG', 'Reps' -->
+            <EditText
+                android:id="@+id/editTextSet"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:gravity="center"
+                android:hint="Set"
+                android:inputType="none"
+                android:backgroundTint="@android:color/darker_gray"
+                android:enabled="false" />
+
+            <EditText
+                android:id="@+id/editTextWeight"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:gravity="center"
+                android:hint="Kilograms"
+                android:inputType="numberDecimal" />
+
+            <EditText
+                android:id="@+id/editTextReps"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:gravity="center"
+                android:hint="Reps"
+                android:inputType="number" />
+
+            <!-- Row 3: 7, 8, 9 buttons -->
+            <Button
+                android:id="@+id/btn7"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:text="7" />
+
+            <Button
+                android:id="@+id/btn8"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:text="8" />
+
+            <Button
+                android:id="@+id/btn9"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:text="9" />
+
+            <!-- Row 4: 4, 5, 6 buttons -->
+            <Button
+                android:id="@+id/btn4"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:text="4" />
+
+            <Button
+                android:id="@+id/btn5"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:text="5" />
+
+            <Button
+                android:id="@+id/btn6"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:text="6" />
+
+            <!-- Row 5: 1, 2, 3 buttons -->
+            <Button
+                android:id="@+id/btn1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:text="1" />
+
+            <Button
+                android:id="@+id/btn2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:text="2" />
+
+            <Button
+                android:id="@+id/btn3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:text="3" />
+
+            <!-- Row 6: 0 button, Decimal button, and End Session button -->
+            <Button
+                android:id="@+id/btn0"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:text="0" />
+
+            <Button
+                android:id="@+id/btnDecimal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:text="." />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnEndSession"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:text="END"
+                android:textColor="@color/dark_text"
+                app:backgroundTint="@color/pastel_purple" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnLog"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:text="LOG"
+                android:textColor="@color/dark_text"
+                app:backgroundTint="@color/light_gray" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnDelete"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:text="DELETE"
+                android:textColor="@color/dark_text"
+                app:backgroundTint="@color/pastel_red" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSave"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:text="SAVE"
+                android:textColor="@color/dark_text"
+                app:backgroundTint="@color/pastel_green" />
+
+        </GridLayout>
+    </LinearLayout>
+
+</FrameLayout>

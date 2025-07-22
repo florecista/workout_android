@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="12dp"
+    android:background="?attr/colorSurface"
+    android:layout_marginBottom="4dp"
+    android:elevation="2dp">
+
+    <TextView
+        android:id="@+id/textReps"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Reps"
+        android:textStyle="bold"
+        android:layout_weight="1"
+        android:textColor="?android:textColorPrimary" />
+
+    <TextView
+        android:id="@+id/textWeight"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Weight"
+        android:layout_weight="1"
+        android:textColor="?android:textColorPrimary" />
+
+    <TextView
+        android:id="@+id/textDate"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Date"
+        android:layout_weight="1"
+        android:textColor="?android:textColorPrimary" />
+</LinearLayout>
