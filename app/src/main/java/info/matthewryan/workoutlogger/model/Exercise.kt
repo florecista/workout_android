@@ -3,9 +3,13 @@ package info.matthewryan.workoutlogger.model
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "exercise")
+@Entity(
+    tableName = "exercise",
+    indices = [Index(value = ["name"], unique = true)]
+)
 data class Exercise(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,

@@ -15,6 +15,7 @@ import info.matthewryan.workoutlogger.AppDatabase
 import info.matthewryan.workoutlogger.R
 import info.matthewryan.workoutlogger.databinding.FragmentActivityBinding
 import info.matthewryan.workoutlogger.model.Activity
+import info.matthewryan.workoutlogger.model.Exercise
 import info.matthewryan.workoutlogger.model.ExerciseType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -102,10 +103,12 @@ class ActivityFragment : Fragment() {
 
         lifecycleScope.launch {
             val exercisesFromDb = withContext(Dispatchers.IO) {
-                exerciseDao.getAllExercises()
+                exerciseDao.getAllExercises() // returns List<Exercise>
             }
-            val names = listOf("Select") + exercisesFromDb.map { it.name }
-            spinnerExercises.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, names)
+
+            val names: List<String> = listOf("Select") + exercisesFromDb.map { it.name }
+            val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, names)
+            spinnerExercises.adapter = adapter
         }
 
         spinnerExercises.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {

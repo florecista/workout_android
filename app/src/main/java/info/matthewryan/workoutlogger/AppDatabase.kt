@@ -15,7 +15,7 @@ import info.matthewryan.workoutlogger.model.Session
 
 @Database(
     entities = [Exercise::class, Activity::class, Session::class],
-    version = 8,
+    version = 12,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

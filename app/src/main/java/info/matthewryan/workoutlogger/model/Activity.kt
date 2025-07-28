@@ -2,6 +2,7 @@ package info.matthewryan.workoutlogger.model
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(
@@ -13,7 +14,8 @@ import androidx.room.PrimaryKey
             childColumns = ["exerciseId"],
             onDelete = ForeignKey.CASCADE
         )
-    ]
+    ],
+    indices = [Index(value = ["exerciseId"])]
 )
 data class Activity(
     @PrimaryKey(autoGenerate = true)

@@ -37,7 +37,8 @@
         tools:layout="@layout/fragment_exercise_detail">
         <argument
             android:name="exercise"
-            app:argType="info.matthewryan.workoutlogger.model.Exercise" />
+            app:argType="info.matthewryan.workoutlogger.model.Exercise"
+            app:nullable="true" />
     </fragment>
 
     <!-- Progress Fragment (ProgressFragment) -->

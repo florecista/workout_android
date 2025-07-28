@@ -9,25 +9,61 @@
             type="info.matthewryan.workoutlogger.model.Exercise" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <com.chauthai.swipereveallayout.SwipeRevealLayout
+        android:id="@+id/swipe_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:layout_marginBottom="4dp"
-        android:background="?attr/colorSurface"
-        android:elevation="2dp"
-        tools:context=".ui.exercises.ExerciseAdapter">
+        app:mode="same_level">
 
-    <TextView
-        android:id="@+id/text_exercise_name"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="@{exercise.name}"
-        android:textSize="16sp"
-        android:textColor="?android:textColorPrimary"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <!-- BACK LAYOUT (Delete Button) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical|end"
+            android:background="@color/pastel_purple"
+            android:paddingEnd="8dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="0dp">
+
+            <Button
+                android:id="@+id/delete_button"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="Delete"
+                android:textColor="@android:color/white"
+                android:backgroundTint="@color/soft_red"
+                android:minHeight="42dp"
+                android:layout_gravity="center_vertical"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp" />
+        </LinearLayout>
+
+        <!-- FRONT LAYOUT (Visible content) -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/foreground_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:layout_marginBottom="4dp"
+            android:background="?attr/colorSurface"
+            android:elevation="2dp"
+            android:clickable="false"
+            android:focusable="false"
+            tools:context=".ui.exercises.ExerciseAdapter">
+
+
+            <TextView
+                android:id="@+id/text_exercise_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@{exercise.name}"
+                android:textSize="16sp"
+                android:textColor="?android:textColorPrimary"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.chauthai.swipereveallayout.SwipeRevealLayout>
 </layout>
