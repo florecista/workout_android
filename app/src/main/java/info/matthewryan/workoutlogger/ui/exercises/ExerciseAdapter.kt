@@ -4,11 +4,16 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.chauthai.swipereveallayout.ViewBinderHelper
 import info.matthewryan.workoutlogger.databinding.ItemExerciseBinding
 import info.matthewryan.workoutlogger.model.Exercise
 
-class ExerciseAdapter(private val onClick: (Exercise) -> Unit) :
-    ListAdapter<Exercise, ExerciseAdapter.ExerciseViewHolder>(ExerciseDiffCallback()) {
+class ExerciseAdapter(
+    private val onClick: (Exercise) -> Unit,
+    private val onDelete: (Exercise) -> Unit // NEW
+) : ListAdapter<Exercise, ExerciseAdapter.ExerciseViewHolder>(ExerciseDiffCallback()) {
+
+    private val viewBinderHelper = ViewBinderHelper()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ExerciseViewHolder {
         val binding =
@@ -18,16 +23,17 @@ class ExerciseAdapter(private val onClick: (Exercise) -> Unit) :
 
     override fun onBindViewHolder(holder: ExerciseViewHolder, position: Int) {
         val exercise = getItem(position)
+        viewBinderHelper.bind(holder.binding.swipeLayout, exercise.id.toString()) // ensure stable id
         holder.bind(exercise)
     }
 
-    inner class ExerciseViewHolder(private val binding: ItemExerciseBinding) :
+    inner class ExerciseViewHolder(val binding: ItemExerciseBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(exercise: Exercise) {
-            // Use data binding to bind the exercise object to the layout
             binding.exercise = exercise
-            binding.root.setOnClickListener { onClick(exercise) }
+            binding.foregroundLayout.setOnClickListener { onClick(exercise) }
+            binding.deleteButton.setOnClickListener { onDelete(exercise) }
         }
     }
 

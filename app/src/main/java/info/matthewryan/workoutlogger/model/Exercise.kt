@@ -3,9 +3,13 @@ package info.matthewryan.workoutlogger.model
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "exercise")
+@Entity(
+    tableName = "exercise",
+    indices = [Index(value = ["name"], unique = true)]
+)
 data class Exercise(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
@@ -13,7 +17,8 @@ data class Exercise(
     val factory: Boolean,
     val isUnilateral: Boolean,
     val isTimed: Boolean,
-    val duration: Int? // Duration in seconds, nullable
+    val duration: Int?, // Duration in seconds, nullable
+    val type: ExerciseType = ExerciseType.STRENGTH
 ) : Parcelable {
 
     constructor(parcel: Parcel) : this(
@@ -22,7 +27,8 @@ data class Exercise(
         parcel.readByte() != 0.toByte(),
         parcel.readByte() != 0.toByte(),
         parcel.readByte() != 0.toByte(),
-        parcel.readValue(Int::class.java.classLoader) as? Int
+        parcel.readValue(Int::class.java.classLoader) as? Int,
+        ExerciseType.valueOf(parcel.readString() ?: ExerciseType.STRENGTH.name) // <-- NEW
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -32,6 +38,7 @@ data class Exercise(
         parcel.writeByte(if (isUnilateral) 1 else 0)
         parcel.writeByte(if (isTimed) 1 else 0)
         parcel.writeValue(duration)
+        parcel.writeString(type.name) // <-- NEW
     }
 
     override fun describeContents(): Int = 0
@@ -50,7 +57,7 @@ data class Exercise(
     }
 
     override fun toString(): String {
-        return "Exercise{id=$id, name='$name'}"
+        return "Exercise{id=$id, name='$name', type=$type}"
     }
 
     override fun equals(other: Any?): Boolean {

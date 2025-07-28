@@ -31,19 +31,14 @@ interface ActivityDao {
     @Query("SELECT * FROM activity WHERE sessionId = :sessionId ORDER BY id ASC")
     fun getActivitiesForSession(sessionId: Long): List<ActivityWithExercise>
 
+    @Query("SELECT * FROM activity WHERE exerciseId = :exerciseId ORDER BY timestamp DESC")
+    fun getActivitiesForExercise(exerciseId: Int): List<Activity>
+
     @Query("SELECT COUNT(*) FROM activity WHERE sessionId = :sessionId AND exerciseId = :exerciseId")
     fun countActivitiesByExerciseInSession(sessionId: Long, exerciseId: Int): Int
 
     @Delete
     fun deleteActivity(activity: Activity)
-
-    @Query("""
-        SELECT reps, MAX(weight) as weight, timestamp FROM activity
-        WHERE exerciseId = :exerciseId
-        GROUP BY reps
-        ORDER BY reps ASC
-    """)
-    fun getPersonalBestsForExercise(exerciseId: Int): List<PersonalBest>
 
     @Query("SELECT COUNT(*) FROM activity WHERE sessionId = :sessionId")
     fun countActivitiesInSession(sessionId: Long): Int
