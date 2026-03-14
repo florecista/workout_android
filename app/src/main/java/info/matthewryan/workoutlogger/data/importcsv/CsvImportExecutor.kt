@@ -19,9 +19,7 @@ class CsvImportExecutor(
             val activityDao = db.activityDao()
 
             // Load existing exercises
-            val existingExercises = exerciseDao.getAllExercises()
-
-            val exerciseMap = existingExercises
+            val exerciseMap = exerciseDao.getAllExercises()
                 .associateBy { it.name }
                 .toMutableMap()
 
@@ -32,30 +30,29 @@ class CsvImportExecutor(
 
                 if (!exerciseMap.containsKey(name)) {
 
-                    val id = exerciseDao.insert(
-                        Exercise(
-                            name = name,
-                            factory = false,
-                            isUnilateral = false,
-                            isTimed = false,
-                            duration = null
-                        )
+                    val exercise = Exercise(
+                        name = name,
+                        factory = false,
+                        isUnilateral = false,
+                        isTimed = false,
+                        duration = null
                     )
 
-                    val exercise = exerciseDao.getExerciseById(id.toInt())!!
+                    val id = exerciseDao.insert(exercise)
 
-                    exerciseMap[name] = exercise
+                    exerciseMap[name] = exercise.copy(id = id.toInt())
 
                     exercisesCreated++
                 }
             }
 
-            // Create sessions
+            // Group activities by session date (performance improvement)
+            val activitiesBySession = plan.activities.groupBy { it.sessionDate }
+
             val sessionMap = mutableMapOf<String, Long>()
 
-            plan.sessionDates.forEach { date ->
-
-                val rows = plan.activities.filter { it.sessionDate == date }
+            // Create sessions
+            activitiesBySession.forEach { (date, rows) ->
 
                 val start = rows.minOf { it.timestamp }
                 val end = rows.maxOf { it.timestamp }

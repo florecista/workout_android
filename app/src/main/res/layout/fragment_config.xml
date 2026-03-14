@@ -70,6 +70,21 @@
             android:text="Reset"
             android:enabled="false" />
 
+        <!-- Import CSV -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Import Workout Data"
+            android:textStyle="bold"
+            android:paddingTop="24dp"
+            android:paddingBottom="4dp" />
+
+        <Button
+            android:id="@+id/buttonImportCsv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Import CSV" />
+
         <!-- Theme Selector -->
         <TextView
             android:layout_width="wrap_content"
