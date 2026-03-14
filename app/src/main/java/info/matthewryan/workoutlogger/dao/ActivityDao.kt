@@ -15,6 +15,9 @@ interface ActivityDao {
     @Insert
     fun insert(activity: Activity)
 
+    @Insert
+    fun insertAll(activities: List<Activity>)
+
     @Query("SELECT * FROM activity WHERE id = :id LIMIT 1")
     fun getActivityById(id: Long): Activity?
 
