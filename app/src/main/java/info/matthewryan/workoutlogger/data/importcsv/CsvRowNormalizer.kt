@@ -1,7 +1,5 @@
 package info.matthewryan.workoutlogger.data.importcsv
 
-import java.time.Instant
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -12,32 +10,38 @@ class CsvRowNormalizer {
 
     fun normalize(row: CsvImportRow): NormalizedImportRow {
 
-        val timestamp = parseTimestamp(row.date)
+        val dateTime = LocalDateTime.parse(row.date, formatter)
 
-        val sessionDate = LocalDateTime
-            .parse(row.date, formatter)
+        val timestamp = dateTime
+            .atZone(ZoneId.systemDefault())
+            .toInstant()
+            .toEpochMilli()
+
+        val sessionDate = dateTime
             .toLocalDate()
             .toString()
+
+        val exerciseName = row.exerciseName
+            ?.trim()
+            ?.takeIf { it.isNotEmpty() }
+            ?: error("Missing exercise name at CSV line ${row.lineNumber}")
+
+        val reps = row.reps?.toIntOrNull()
+            ?: error("Invalid reps at CSV line ${row.lineNumber}")
+
+        val weightKg = row.weightKg?.toDoubleOrNull()
+            ?: error("Invalid weight at CSV line ${row.lineNumber}")
 
         return NormalizedImportRow(
             lineNumber = row.lineNumber,
             timestamp = timestamp,
             sessionDate = sessionDate,
             workoutName = row.workoutName,
-            exerciseName = row.exerciseName!!.trim(),
-            reps = row.reps!!.toInt(),
-            weightKg = row.weightKg!!.toDouble(),
+            exerciseName = exerciseName,
+            reps = reps,
+            weightKg = weightKg,
             notes = row.notes,
             durationSeconds = row.duration?.toIntOrNull()
         )
-    }
-
-    private fun parseTimestamp(date: String): Long {
-
-        return LocalDateTime
-            .parse(date, formatter)
-            .atZone(ZoneId.systemDefault())
-            .toInstant()
-            .toEpochMilli()
     }
 }
