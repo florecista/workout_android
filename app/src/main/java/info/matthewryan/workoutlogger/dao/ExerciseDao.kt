@@ -24,21 +24,17 @@ interface ExerciseDao {
     fun getAllExercisesFlow(): Flow<List<Exercise>>
 
     @Query("SELECT * FROM exercise")
-    fun getAllExercisesOnce(): List<Exercise>
-
-    @Query("SELECT * FROM exercise")
     fun getAllExercises(): List<Exercise>
 
     @Update
     fun update(exercise: Exercise)
 
     @Query("DELETE FROM exercise")
-    fun deleteAll()  // Correct return type
+    fun deleteAll()
 
     @Query("DELETE FROM exercise WHERE factory = 0")
     fun deleteNonFactoryExercises()
 
     @Delete
     fun delete(exercise: Exercise)
-
 }

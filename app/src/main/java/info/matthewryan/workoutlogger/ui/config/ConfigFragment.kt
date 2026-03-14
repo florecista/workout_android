@@ -38,22 +38,48 @@ class ConfigFragment : Fragment() {
 
         // Clear Activities
         binding.buttonClearActivities.setOnClickListener {
-            lifecycleScope.launch {
-                withContext(Dispatchers.IO) {
-                    db.activityDao().deleteAll()
+
+            AlertDialog.Builder(requireContext())
+                .setTitle("Clear Activities")
+                .setMessage("This will delete all activity records. Continue?")
+                .setPositiveButton("Delete") { _, _ ->
+
+                    lifecycleScope.launch {
+
+                        db.activityDao().deleteAll()
+
+                        val remaining = db.activityDao().getAllActivities().size
+                        Log.d("DB_RESET", "Activities remaining: $remaining")
+                    }
+
                 }
-            }
+                .setNegativeButton("Cancel", null)
+                .show()
         }
 
-        // Factory Reset (currently disabled)
-        binding.buttonFactoryReset.isEnabled = false
+        // Factory Reset
+        binding.buttonFactoryReset.isEnabled = true
         binding.buttonFactoryReset.setOnClickListener {
-            lifecycleScope.launch {
-                withContext(Dispatchers.IO) {
-                    db.activityDao().deleteAll()
-                    db.exerciseDao().deleteNonFactoryExercises()
+
+            AlertDialog.Builder(requireContext())
+                .setTitle("Factory Reset")
+                .setMessage(
+                    "This will delete ALL sessions and activities and remove any custom exercises.\n\nContinue?"
+                )
+                .setPositiveButton("Reset") { _, _ ->
+
+                    lifecycleScope.launch {
+
+                        db.activityDao().deleteAll()
+                        db.sessionDao().deleteAll()
+                        db.exerciseDao().deleteNonFactoryExercises()
+
+                        Log.d("DB_RESET", "Factory reset complete")
+                    }
+
                 }
-            }
+                .setNegativeButton("Cancel", null)
+                .show()
         }
 
         // Units selection

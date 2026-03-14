@@ -93,8 +93,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun preloadExercises() {
         lifecycleScope.launch {
-            val exercises = withContext(Dispatchers.IO) {
-                exerciseDao.getAllExercisesOnce()
+            val exercises: List<Exercise> = withContext(Dispatchers.IO) {
+                exerciseDao.getAllExercises()
             }
 
             if (exercises.isEmpty()) {

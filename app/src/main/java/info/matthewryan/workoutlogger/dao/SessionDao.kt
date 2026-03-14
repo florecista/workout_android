@@ -19,19 +19,17 @@ interface SessionDao {
     fun getSessionWithActivities(sessionId: Long): SessionWithActivities?
 
     @Insert
-    fun insertSession(session: Session): Long
-
-    @Insert
     fun insert(session: Session): Long
 
     @Delete
     fun deleteSession(session: Session)
 
-    // 🔴 Add this method:
     @Query("DELETE FROM session WHERE id = :sessionId")
     fun deleteSessionById(sessionId: Long)
 
+    @Query("DELETE FROM session")
+    fun deleteAll()
+
     @Query("UPDATE session SET endTimestamp = :endTime WHERE id = :sessionId")
     fun markSessionAsEnded(sessionId: Long, endTime: Long)
-
 }
