@@ -9,9 +9,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.EditText
-import android.widget.Spinner
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -40,7 +40,7 @@ class ActivityFragment : Fragment() {
     private var _binding: FragmentActivityBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var spinnerExercises: Spinner
+    private lateinit var dropdownExercises: AutoCompleteTextView
     private lateinit var editTextSet: EditText
     private lateinit var editTextOne: EditText
     private lateinit var editTextTwo: EditText
@@ -81,7 +81,7 @@ class ActivityFragment : Fragment() {
         val root = binding.root
 
         // Bind views
-        spinnerExercises = binding.spinnerExercises
+        dropdownExercises = binding.dropdownExercises
         editTextSet = binding.editTextSet
         editTextOne = binding.editTextOne
         editTextTwo = binding.editTextTwo
@@ -134,78 +134,61 @@ class ActivityFragment : Fragment() {
             val exercisesFromDb = withContext(Dispatchers.IO) { exerciseDao.getAllExercises() }
             println("DEBUG: Loaded ${exercisesFromDb.size} exercises from DB: ${exercisesFromDb.map { it.name }}")
             val names: List<String> = listOf("Select") + exercisesFromDb.map { it.name }
-            val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, names)
-            spinnerExercises.adapter = adapter
+            val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, names)
+            dropdownExercises.setAdapter(adapter)
         }
 
         // Spinner selection → update VM + adjust hints + set 'Set' number
-        spinnerExercises.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                if (position == 0) {
-                    println("DEBUG: 'Select' chosen → clearing fields and chart")
-                    editTextSet.setText("")
-                    editTextOne.hint = ""
-                    editTextTwo.hint = ""
-                    selectedExerciseType = null
-                    selectedExerciseId = null
-                    removeDurationMask()
-                    // Clear chart + limit line
-                    renderDailyVolume(emptyList())
-                    chart.axisLeft.removeAllLimitLines()
-                    chart.invalidate()
-                    println("DEBUG: Chart cleared (empty list) and limit lines removed")
-                    return
+        dropdownExercises.setOnItemClickListener { parent, _, position, _ ->
+
+            if (position == 0) {
+                editTextSet.setText("")
+                editTextOne.hint = ""
+                editTextTwo.hint = ""
+                selectedExerciseType = null
+                selectedExerciseId = null
+                removeDurationMask()
+                renderDailyVolume(emptyList())
+                chart.axisLeft.removeAllLimitLines()
+                chart.invalidate()
+                return@setOnItemClickListener
+            }
+
+            val selectedExerciseName = parent.getItemAtPosition(position).toString()
+            activityViewModel.updateExerciseByName(selectedExerciseName)
+
+            lifecycleScope.launch {
+                val exercise = withContext(Dispatchers.IO) {
+                    exerciseDao.getExerciseByName(selectedExerciseName)
                 }
 
-                val selectedExerciseName = parent?.getItemAtPosition(position).toString()
-                println("DEBUG: Spinner selection → $selectedExerciseName")
-                activityViewModel.updateExerciseByName(selectedExerciseName)
+                if (exercise == null) return@launch
 
-                lifecycleScope.launch {
-                    val exercise = withContext(Dispatchers.IO) { exerciseDao.getExerciseByName(selectedExerciseName) }
+                selectedExerciseType = exercise.type
+                selectedExerciseId = exercise.id
 
-                    if (exercise == null) {
-                        println("DEBUG: No exercise found in DB with name=$selectedExerciseName")
-                        return@launch
+                val count = withContext(Dispatchers.IO) {
+                    db.activityDao().countActivitiesByExerciseInSession(sessionId, exercise.id)
+                }
+
+                editTextSet.setText((count + 1).toString())
+
+                when (exercise.type) {
+                    ExerciseType.STRENGTH -> {
+                        editTextOne.hint = "Weight (kg)"
+                        editTextTwo.hint = "Reps"
+                        editTextTwo.inputType = InputType.TYPE_CLASS_NUMBER
+                        removeDurationMask()
                     }
 
-                    selectedExerciseType = exercise.type
-                    selectedExerciseId = exercise.id
-                    println("DEBUG: Found exercise → id=${exercise.id}, name=${exercise.name}, type=${exercise.type}")
-
-                    val count = withContext(Dispatchers.IO) {
-                        db.activityDao().countActivitiesByExerciseInSession(sessionId, exercise.id)
+                    ExerciseType.CARDIO -> {
+                        editTextOne.hint = "Distance (km)"
+                        editTextTwo.hint = "Duration (mm:ss)"
+                        editTextTwo.inputType = InputType.TYPE_CLASS_NUMBER
+                        setDurationInputMask()
                     }
-                    println("DEBUG: Activity count for this exercise in current session=$count")
-                    editTextSet.setText((count + 1).toString())
-
-                    when (exercise.type) {
-                        ExerciseType.STRENGTH -> {
-                            println("DEBUG: Setting UI hints for STRENGTH")
-                            editTextOne.hint = "Weight (kg)"
-                            editTextTwo.hint = "Reps"
-                            editTextTwo.inputType = InputType.TYPE_CLASS_NUMBER
-                            removeDurationMask()
-                        }
-                        ExerciseType.CARDIO -> {
-                            println("DEBUG: Setting UI hints for CARDIO")
-                            editTextOne.hint = "Distance (km)"
-                            editTextTwo.hint = "Duration (mm:ss)"
-                            editTextTwo.inputType = InputType.TYPE_CLASS_NUMBER
-                            setDurationInputMask()
-                        }
-                    }
-
-                    // NEW: compute & draw the session volume line for this exercise
-                    val sessionVol = withContext(Dispatchers.IO) {
-                        computeSessionVolumeForExercise(sessionId, exercise.id)
-                    }
-                    lastSessionVolume = sessionVol
-                    updateSessionVolumeLine(sessionVol)
-                    println("DEBUG: Session volume line updated at $sessionVol")
                 }
             }
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
         // set log button enabled/disabled
@@ -387,7 +370,7 @@ class ActivityFragment : Fragment() {
     // ========== Save / Session ==========
 
     private fun saveAction() {
-        val selectedExerciseName = spinnerExercises.selectedItem?.toString() ?: "Select"
+        val selectedExerciseName = dropdownExercises.text.toString()
         if (selectedExerciseName == "Select" || selectedExerciseType == null) {
             println("Please select a valid exercise.")
             return

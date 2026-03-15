@@ -31,13 +31,22 @@
             android:padding="8dp">
 
             <!-- Row 1: Spinner for Exercises -->
-            <Spinner
-                android:id="@+id/spinnerExercises"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layoutExerciseSelector"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_columnSpan="3"
                 android:layout_columnWeight="1"
-                android:layout_margin="8dp" />
+                android:layout_margin="8dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+
+                <AutoCompleteTextView
+                    android:id="@+id/dropdownExercises"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Select Exercise"
+                    android:inputType="none"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Row 2: EditTexts for 'Set', 'KG', 'Reps' -->
             <EditText
