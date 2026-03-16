@@ -54,6 +54,11 @@ class ActivityFragment : Fragment() {
     private lateinit var btnLog: Button
     private lateinit var btnDelete: Button
     private lateinit var btnSave: Button
+
+    private lateinit var btnSessionHistory: Button
+
+    private lateinit var btnExerciseHistory: Button
+
     private lateinit var chart: LineChart
 
     private val db by lazy { AppDatabase.getDatabase(requireContext()) }
@@ -98,6 +103,8 @@ class ActivityFragment : Fragment() {
         btnLog = binding.btnLog
         btnDelete = binding.btnDelete
         btnSave = binding.btnSave
+        btnSessionHistory = binding.btnSessionHistory
+        btnExerciseHistory = binding.btnExerciseHistory
         chart = binding.chart1
 
         prBanner = binding.prBanner
@@ -126,6 +133,26 @@ class ActivityFragment : Fragment() {
         btnLog.setOnClickListener {
             val bundle = Bundle().apply { putLong("sessionId", sessionId) }
             findNavController().navigate(R.id.action_activityFragment_to_sessionLogFragment, bundle)
+        }
+
+        btnSessionHistory.setOnClickListener {
+            val bundle = Bundle().apply { putLong("sessionId", sessionId) }
+            findNavController().navigate(R.id.action_activityFragment_to_sessionLogFragment, bundle)
+        }
+
+        btnExerciseHistory.setOnClickListener {
+
+            selectedExerciseId?.let { id ->
+
+                val bundle = Bundle().apply {
+                    putInt("exerciseId", id)
+                }
+
+                findNavController().navigate(
+                    R.id.navigation_exercise_history,
+                    bundle
+                )
+            }
         }
 
         btnDelete.setOnClickListener {

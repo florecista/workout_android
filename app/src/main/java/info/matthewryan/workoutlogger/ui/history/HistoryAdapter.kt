@@ -34,7 +34,7 @@ class HistoryAdapter(
         val item = getItem(position)
 
         holder.sessionTitle.text = formatTimestamp(item.session.startTimestamp)
-        holder.exerciseList.text = item.exerciseNames.joinToString(", ")
+        holder.exerciseList.text = item.exerciseNames.joinToString("\\n")
 
         // ✅ Attach to foreground layout only
         holder.foregroundLayout.setOnClickListener {

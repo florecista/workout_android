@@ -101,6 +101,22 @@
     </fragment>
 
     <fragment
+        android:id="@+id/navigation_exercise_history"
+        android:name="info.matthewryan.workoutlogger.ui.history.ExerciseHistoryFragment"
+        android:label="Exercise History"
+        tools:layout="@layout/fragment_exercise_history">
+
+        <argument
+            android:name="exerciseId"
+            app:argType="integer" />
+
+        <action
+            android:id="@+id/action_exerciseHistoryFragment_to_sessionDetailFragment"
+            app:destination="@id/sessionDetailFragment" />
+
+    </fragment>
+
+    <fragment
         android:id="@+id/navigation_session_log"
         android:name="info.matthewryan.workoutlogger.ui.sessionlog.SessionLogFragment"
         android:label="Session Log"

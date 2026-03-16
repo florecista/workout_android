@@ -17,4 +17,6 @@
     <color name="soft_red">#C62828</color> <!-- Deeper red -->
 
     <color name="soft_blue">#4A90E2</color>
+
+    <color name="dark_surface">#1E1E1E</color>
 </resources>
