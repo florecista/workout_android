@@ -88,4 +88,28 @@ interface ActivityDao {
 """)
     fun getSessionVolumeForExercise(sessionId: Long, exerciseId: Int): Double
 
+    @Query("""
+    SELECT MAX(weight * reps)
+    FROM activity
+    WHERE exerciseId = :exerciseId
+    """)
+    fun getMaxVolumeForExercise(exerciseId: Int): Double?
+
+    @Query("""
+    SELECT MAX(weight)
+    FROM activity
+    WHERE exerciseId = :exerciseId
+      AND reps = :reps
+    """)
+    fun getMaxWeightForExerciseAndReps(exerciseId: Int, reps: Int): Double?
+
+    @Query("""
+    SELECT MAX(session_volume) FROM (
+        SELECT SUM(weight * reps) AS session_volume
+        FROM activity
+        WHERE exerciseId = :exerciseId
+        GROUP BY sessionId
+    )
+    """)
+    fun getMaxSessionVolumeForExercise(exerciseId: Int): Double?
 }

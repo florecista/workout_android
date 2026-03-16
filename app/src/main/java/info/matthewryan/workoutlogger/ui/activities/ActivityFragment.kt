@@ -1,6 +1,10 @@
 package info.matthewryan.workoutlogger.ui.activities
 
+import android.Manifest
+import android.content.Context
 import android.os.Bundle
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
@@ -12,6 +16,8 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
+import androidx.annotation.RequiresPermission
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -71,6 +77,9 @@ class ActivityFragment : Fragment() {
 
     private var axisLabelColor: Int = android.graphics.Color.BLACK
 
+    private lateinit var prBanner: View
+    private lateinit var prBannerText: TextView
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -90,6 +99,9 @@ class ActivityFragment : Fragment() {
         btnDelete = binding.btnDelete
         btnSave = binding.btnSave
         chart = binding.chart1
+
+        prBanner = binding.prBanner
+        prBannerText = binding.prBannerText
 
         initChart()
 
@@ -389,14 +401,21 @@ class ActivityFragment : Fragment() {
                 return@launch
             }
 
+            var reps: Int? = null
+            var weight: Double? = null
+            var volume: Double? = null
+
             val activity = when (exercise.type) {
                 ExerciseType.STRENGTH -> {
-                    val reps = editTextTwo.text.toString().toIntOrNull()
-                    val weight = editTextOne.text.toString().toDoubleOrNull()
+                    reps = editTextTwo.text.toString().toIntOrNull()
+                    weight = editTextOne.text.toString().toDoubleOrNull()
                     if (reps == null || weight == null) {
                         println("Reps and weight must be valid numbers.")
                         return@launch
                     }
+
+                    volume = weight * reps
+
                     Activity(
                         exerciseId = exercise.id,
                         reps = reps,
@@ -424,14 +443,37 @@ class ActivityFragment : Fragment() {
                 }
             }
 
+            // 1️⃣ Check weight PR BEFORE insert
+            val isWeightPR = if (reps != null && weight != null) {
+                activityViewModel.isNewWeightPrForRepCount(exercise.id, reps, weight)
+            } else {
+                false
+            }
+
+            // 2️⃣ Insert the activity
             activityViewModel.insertActivity(activity)
+
+            // 3️⃣ Recalculate session volume
+            val sessionVol = activityViewModel.computeSessionVolume(sessionId, exercise.id)
+
+            // 4️⃣ Get historical best session volume
+            val maxSessionVol = activityViewModel.getMaxSessionVolumeForExercise(exercise.id)
+
+            // 5️⃣ Check session volume PR
+            val isSessionVolumePR = sessionVol > maxSessionVol
+
+            // 6️⃣ Trigger alerts
+            if (isWeightPR) {
+                showPRAlert(weight, reps)
+            } else if (isSessionVolumePR) {
+                showSessionVolumePRAlert(sessionVol)
+            }
 
             // Update set number
             val newCount = activityViewModel.countActivitiesByExerciseInSession(sessionId, exercise.id)
             editTextSet.setText((newCount + 1).toString())
 
             // NEW: refresh the session volume line after save
-            val sessionVol = activityViewModel.computeSessionVolume(sessionId, exercise.id)
             lastSessionVolume = sessionVol
             updateSessionVolumeLine(sessionVol)
 
@@ -480,6 +522,108 @@ class ActivityFragment : Fragment() {
             val count = activityViewModel.countActivitiesInSession(sessionId)
             btnLog.isEnabled = count > 0
         }
+    }
+
+    private fun showPRAlert(weight: Double?, reps: Int?) {
+
+        if (weight == null || reps == null) return
+
+        // 🔔 Haptic feedback
+        val vibrator = requireContext().getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        if (vibrator.hasVibrator()) {
+            vibrator.vibrate(VibrationEffect.createOneShot(80, VibrationEffect.DEFAULT_AMPLITUDE))
+        }
+
+        val message = "🏆 Personal Record!  ${weight} kg × $reps reps"
+
+        prBannerText.text = message
+        prBanner.visibility = View.VISIBLE
+
+        prBanner.translationY = -prBanner.height.toFloat()
+
+        prBanner.animate()
+            .translationY(0f)
+            .setDuration(300)
+            .withEndAction {
+
+                // Small bounce
+                prBanner.animate()
+                    .translationY(-10f)
+                    .setDuration(120)
+                    .withEndAction {
+
+                        prBanner.animate()
+                            .translationY(0f)
+                            .setDuration(120)
+                            .withEndAction {
+
+                                // Pulse animation
+                                prBanner.animate()
+                                    .scaleX(1.05f)
+                                    .scaleY(1.05f)
+                                    .setDuration(120)
+                                    .withEndAction {
+                                        prBanner.animate()
+                                            .scaleX(1f)
+                                            .scaleY(1f)
+                                            .setDuration(120)
+                                            .start()
+                                    }
+                                    .start()
+
+                            }
+                            .start()
+
+                    }
+                    .start()
+
+            }
+            .start()
+
+        prBanner.postDelayed({
+
+            prBanner.animate()
+                .translationY(-prBanner.height.toFloat())
+                .setDuration(300)
+                .withEndAction {
+                    prBanner.visibility = View.GONE
+                }
+                .start()
+
+        }, 2500)
+    }
+
+    private fun showSessionVolumePRAlert(volume: Double) {
+
+        // 🔔 Haptic feedback
+        val vibrator = requireContext().getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        if (vibrator.hasVibrator()) {
+            vibrator.vibrate(VibrationEffect.createOneShot(80, VibrationEffect.DEFAULT_AMPLITUDE))
+        }
+
+        val message = "🏆 Session Volume PR!  ${volume.toInt()} kg"
+
+        prBannerText.text = message
+        prBanner.visibility = View.VISIBLE
+
+        prBanner.translationY = -prBanner.height.toFloat()
+
+        prBanner.animate()
+            .translationY(0f)
+            .setDuration(300)
+            .start()
+
+        prBanner.postDelayed({
+
+            prBanner.animate()
+                .translationY(-prBanner.height.toFloat())
+                .setDuration(300)
+                .withEndAction {
+                    prBanner.visibility = View.GONE
+                }
+                .start()
+
+        }, 2500)
     }
 
     // ========== Lifecycle ==========

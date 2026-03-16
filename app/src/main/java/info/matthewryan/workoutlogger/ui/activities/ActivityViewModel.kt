@@ -75,6 +75,23 @@ class ActivityViewModel(
             .sumOf { it.activity.reps * it.activity.weight }
     }
 
+    suspend fun isNewWeightPrForRepCount(
+        exerciseId: Int,
+        reps: Int,
+        weight: Double
+    ): Boolean {
+        return withContext(Dispatchers.IO) {
+            val previousMax = activityDao.getMaxWeightForExerciseAndReps(exerciseId, reps) ?: 0.0
+            weight > previousMax
+        }
+    }
+
+    suspend fun getMaxSessionVolumeForExercise(exerciseId: Int): Double {
+        return withContext(Dispatchers.IO) {
+            activityDao.getMaxSessionVolumeForExercise(exerciseId) ?: 0.0
+        }
+    }
+
     class Factory(
         private val activityDao: ActivityDao,
         private val exerciseDao: ExerciseDao
