@@ -305,7 +305,7 @@ class ActivityFragment : Fragment() {
 
         val dataSet = LineDataSet(entries, "Daily Volume").apply {
             setDrawCircles(true)
-            circleRadius = 3f
+            circleRadius = 2.5f
             setDrawValues(false)
             lineWidth = 2f
             mode = LineDataSet.Mode.CUBIC_BEZIER
@@ -424,18 +424,14 @@ class ActivityFragment : Fragment() {
                 }
             }
 
-            withContext(Dispatchers.IO) { db.activityDao().insert(activity) }
+            activityViewModel.insertActivity(activity)
 
             // Update set number
-            val newCount = withContext(Dispatchers.IO) {
-                db.activityDao().countActivitiesByExerciseInSession(sessionId, exercise.id)
-            }
+            val newCount = activityViewModel.countActivitiesByExerciseInSession(sessionId, exercise.id)
             editTextSet.setText((newCount + 1).toString())
 
             // NEW: refresh the session volume line after save
-            val sessionVol = withContext(Dispatchers.IO) {
-                computeSessionVolumeForExercise(sessionId, exercise.id)
-            }
+            val sessionVol = activityViewModel.computeSessionVolume(sessionId, exercise.id)
             lastSessionVolume = sessionVol
             updateSessionVolumeLine(sessionVol)
 
@@ -481,9 +477,7 @@ class ActivityFragment : Fragment() {
 
     private fun updateLogButtonState() {
         lifecycleScope.launch {
-            val count = withContext(Dispatchers.IO) {
-                db.activityDao().countActivitiesInSession(sessionId)
-            }
+            val count = activityViewModel.countActivitiesInSession(sessionId)
             btnLog.isEnabled = count > 0
         }
     }
