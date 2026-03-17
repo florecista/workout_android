@@ -16,6 +16,7 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import info.matthewryan.workoutlogger.AppDatabase
+import info.matthewryan.workoutlogger.R
 import info.matthewryan.workoutlogger.databinding.FragmentProgressDetailBinding
 import info.matthewryan.workoutlogger.model.Exercise
 import info.matthewryan.workoutlogger.dao.ExerciseRepository.calculatePersonalBests
@@ -46,6 +47,20 @@ class ProgressDetailFragment : Fragment() {
         binding.recyclerViewPersonalBests.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerViewPersonalBests.adapter = adapter
 
+        // ✅ Default selection
+        binding.toggleChartMode.check(R.id.buttonStrength)
+
+        // ✅ Toggle behaviour
+        binding.toggleChartMode.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (!isChecked) return@addOnButtonCheckedListener
+
+            when (checkedId) {
+                R.id.buttonStrength -> loadStrengthData()
+                R.id.buttonVolume -> loadVolumeData()
+            }
+        }
+
+        // Initial load
         loadStrengthData()
 
         return binding.root
@@ -56,23 +71,15 @@ class ProgressDetailFragment : Fragment() {
         lifecycleScope.launch {
             val dao = AppDatabase.getDatabase(requireContext()).activityDao()
 
-            // ----------------------------
-            // Load activities
-            // ----------------------------
             val activities = withContext(Dispatchers.IO) {
                 dao.getActivitiesForExercise(exercise.id)
             }
 
-            // Ensure chronological order (oldest → newest)
             val sortedActivities = activities.sortedBy { it.timestamp }
 
-            // ----------------------------
-            // Group by session and get max weight (FILTERED)
-            // ----------------------------
             val maxPerSession = sortedActivities
                 .groupBy { it.timestamp }
                 .map { (timestamp, acts) ->
-
                     val maxWeight = acts
                         .mapNotNull { it.weight }
                         .filter { it > 20 } // ignore warmups
@@ -82,9 +89,6 @@ class ProgressDetailFragment : Fragment() {
                 }
                 .sortedBy { it.first }
 
-            // ----------------------------
-            // Only keep progressive maxes
-            // ----------------------------
             val progressiveMax = mutableListOf<Pair<Long, Double>>()
             var currentMax = 0.0
 
@@ -95,9 +99,6 @@ class ProgressDetailFragment : Fragment() {
                 }
             }
 
-            // ----------------------------
-            // Chart entries
-            // ----------------------------
             val entries = progressiveMax.mapIndexed { index, (_, weight) ->
                 Entry(index.toFloat(), weight.toFloat())
             }
@@ -109,7 +110,7 @@ class ProgressDetailFragment : Fragment() {
                 com.google.android.material.R.color.design_default_color_primary
             )
 
-            // 🔥 Styling (fixed circles)
+            // Styling
             dataSet.setDrawValues(false)
             dataSet.setDrawCircles(true)
             dataSet.setDrawCircleHole(true)
@@ -121,9 +122,10 @@ class ProgressDetailFragment : Fragment() {
             dataSet.circleHoleRadius = 3f
 
             dataSet.color = lineColor
-            dataSet.setCircleColor(Color.WHITE)          // outer ring
-            dataSet.setCircleHoleColor(lineColor)        // inner fill
+            dataSet.setCircleColor(Color.WHITE)
+            dataSet.setCircleHoleColor(lineColor)
 
+            // Highlight latest point
             val lastIndex = entries.lastIndex
             dataSet.setCircleColors(
                 entries.mapIndexed { index, _ ->
@@ -131,7 +133,100 @@ class ProgressDetailFragment : Fragment() {
                 }
             )
 
-            // Apply data
+            binding.lineChart.clear()
+            binding.lineChart.data = LineData(dataSet)
+
+            val textColor = ContextCompat.getColor(
+                requireContext(),
+                com.google.android.material.R.color.material_on_surface_emphasis_medium
+            )
+
+            val gridColor = ContextCompat.getColor(
+                requireContext(),
+                com.google.android.material.R.color.material_on_surface_disabled
+            )
+
+            val dateLabels = progressiveMax.map { (timestamp, _) ->
+                val calendar = Calendar.getInstance().apply { timeInMillis = timestamp }
+                val day = calendar.get(Calendar.DAY_OF_MONTH)
+                val month = calendar.get(Calendar.MONTH)
+                val year = calendar.get(Calendar.YEAR) % 100
+
+                if (month == Calendar.JANUARY) {
+                    String.format("%02d Jan '%02d", day, year)
+                } else {
+                    String.format(
+                        "%02d %s",
+                        day,
+                        SimpleDateFormat("MMM", Locale.getDefault()).format(calendar.time)
+                    )
+                }
+            }
+
+            binding.lineChart.xAxis.apply {
+                position = XAxis.XAxisPosition.BOTTOM
+                granularity = 1f
+                valueFormatter = IndexAxisValueFormatter(dateLabels)
+                this.textColor = textColor
+                textSize = 10f
+                setDrawGridLines(true)
+                this.gridColor = gridColor
+                gridLineWidth = 0.5f
+            }
+
+            binding.lineChart.axisLeft.apply {
+                this.textColor = textColor
+                textSize = 10f
+                setDrawGridLines(true)
+                this.gridColor = gridColor
+                gridLineWidth = 0.5f
+            }
+
+            binding.lineChart.axisRight.isEnabled = false
+
+            binding.lineChart.legend.isEnabled = false
+            binding.lineChart.description.isEnabled = false
+
+            binding.lineChart.setTouchEnabled(true)
+            binding.lineChart.setPinchZoom(true)
+            binding.lineChart.setScaleEnabled(true)
+            binding.lineChart.setBackgroundColor(Color.TRANSPARENT)
+
+            binding.lineChart.notifyDataSetChanged()
+            binding.lineChart.invalidate()
+
+            val personalBests = calculatePersonalBests(exercise, activities)
+            adapter.submitList(personalBests)
+        }
+    }
+
+    @SuppressLint("DefaultLocale")
+    private fun loadVolumeData() {
+        lifecycleScope.launch {
+            val dao = AppDatabase.getDatabase(requireContext()).activityDao()
+
+            val volumePerSessions = withContext(Dispatchers.IO) {
+                dao.getVolumePerSessionForExercise(exercise.id)
+            }
+
+            val entries = volumePerSessions.mapIndexed { index, session ->
+                Entry(index.toFloat(), session.totalVolume.toFloat())
+            }
+
+            val dataSet = LineDataSet(entries, "Training Volume")
+
+            val lineColor = ContextCompat.getColor(
+                requireContext(),
+                com.google.android.material.R.color.design_default_color_primary
+            )
+
+            // 🔥 Match strength chart styling (but simpler)
+            dataSet.setDrawValues(false)
+            dataSet.setDrawCircles(false)   // cleaner for dense data
+            dataSet.setDrawFilled(false)
+            dataSet.lineWidth = 2f
+            dataSet.color = lineColor
+
             binding.lineChart.clear()
             binding.lineChart.data = LineData(dataSet)
 
@@ -151,8 +246,8 @@ class ProgressDetailFragment : Fragment() {
             // ----------------------------
             // X Axis (dates)
             // ----------------------------
-            val dateLabels = progressiveMax.map { (timestamp, _) ->
-                val calendar = Calendar.getInstance().apply { timeInMillis = timestamp }
+            val dateLabels = volumePerSessions.map {
+                val calendar = Calendar.getInstance().apply { timeInMillis = it.date }
                 val day = calendar.get(Calendar.DAY_OF_MONTH)
                 val month = calendar.get(Calendar.MONTH)
                 val year = calendar.get(Calendar.YEAR) % 100
@@ -212,6 +307,9 @@ class ProgressDetailFragment : Fragment() {
             // ----------------------------
             // Personal Bests (unchanged)
             // ----------------------------
+            val activities = withContext(Dispatchers.IO) {
+                dao.getActivitiesForExercise(exercise.id)
+            }
             val personalBests = calculatePersonalBests(exercise, activities)
             adapter.submitList(personalBests)
         }

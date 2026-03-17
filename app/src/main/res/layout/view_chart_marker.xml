@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_marker"
+    android:padding="6dp"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/textWeight"
+        android:text="100 kg"
+        android:textColor="@android:color/white"
+        android:textSize="12sp"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:id="@+id/textDate"
+        android:text="16 Feb 2023"
+        android:textColor="@android:color/white"
+        android:textSize="10sp"/>
+</LinearLayout>
