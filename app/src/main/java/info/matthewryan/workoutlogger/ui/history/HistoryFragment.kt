@@ -114,7 +114,28 @@ class HistoryFragment : Fragment() {
                 }
             }
 
-            adapter.submitList(sessionDisplays.sortedByDescending { it.session.startTimestamp })
+            val datesWithSessions = sessionDisplays.map {
+                val calendar = java.util.Calendar.getInstance().apply {
+                    timeInMillis = it.session.startTimestamp
+                }
+
+                com.prolificinteractive.materialcalendarview.CalendarDay.from(
+                    calendar.get(java.util.Calendar.YEAR),
+                    calendar.get(java.util.Calendar.MONTH) + 1, // ✅ FIX HERE
+                    calendar.get(java.util.Calendar.DAY_OF_MONTH)
+                )
+            }.toSet()
+
+            // ✅ Apply decorator (dots)
+            binding.calendarView.removeDecorators()
+            binding.calendarView.addDecorator(
+                SessionDayDecorator(datesWithSessions, requireContext())
+            )
+
+            // Existing behavior
+            adapter.submitList(
+                sessionDisplays.sortedByDescending { it.session.startTimestamp }
+            )
         }
     }
 
