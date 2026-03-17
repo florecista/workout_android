@@ -1,13 +1,16 @@
 package info.matthewryan.workoutlogger.ui.progress
 
 import android.annotation.SuppressLint
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
@@ -47,7 +50,6 @@ class ProgressDetailFragment : Fragment() {
 
         return binding.root
     }
-
     @SuppressLint("DefaultLocale")
     private fun loadVolumeData() {
         lifecycleScope.launch {
@@ -60,13 +62,36 @@ class ProgressDetailFragment : Fragment() {
                 Entry(index.toFloat(), session.totalVolume.toFloat())
             }
 
-            val dataSet = LineDataSet(entries, "Volume per Session")
+            val dataSet = LineDataSet(entries, "Training Volume")
             dataSet.setDrawValues(false)
-            dataSet.setDrawCircles(true)
+            dataSet.setDrawCircles(false)
+            dataSet.lineWidth = 2f
+
+            // ✅ Theme-aware line color (Material primary)
+            val lineColor = ContextCompat.getColor(
+                requireContext(),
+                com.google.android.material.R.color.design_default_color_primary
+            )
+            dataSet.color = lineColor
 
             binding.lineChart.data = LineData(dataSet)
 
-            // Format X-axis labels with conditional formatting
+            // ----------------------------
+            // Prepare theme-aware colors
+            // ----------------------------
+            val textColor = ContextCompat.getColor(
+                requireContext(),
+                com.google.android.material.R.color.material_on_surface_emphasis_medium
+            )
+
+            val gridColor = ContextCompat.getColor(
+                requireContext(),
+                com.google.android.material.R.color.material_on_surface_disabled
+            )
+
+            // ----------------------------
+            // X Axis (dates)
+            // ----------------------------
             val dateLabels = volumePerSessions.map {
                 val calendar = Calendar.getInstance().apply { timeInMillis = it.date }
                 val day = calendar.get(Calendar.DAY_OF_MONTH)
@@ -74,20 +99,63 @@ class ProgressDetailFragment : Fragment() {
                 val year = calendar.get(Calendar.YEAR) % 100
 
                 if (month == Calendar.JANUARY) {
-                    String.format("%02d Jan '%02d", day, year) // e.g. 16 Jan '25
+                    String.format("%02d Jan '%02d", day, year)
                 } else {
-                    String.format("%02d %s", day, SimpleDateFormat("MMM", Locale.getDefault()).format(calendar.time))
+                    String.format(
+                        "%02d %s",
+                        day,
+                        SimpleDateFormat("MMM", Locale.getDefault()).format(calendar.time)
+                    )
                 }
             }
 
             binding.lineChart.xAxis.apply {
+                position = XAxis.XAxisPosition.BOTTOM
                 granularity = 1f
                 valueFormatter = IndexAxisValueFormatter(dateLabels)
+                this.textColor = textColor
+                textSize = 10f
+                setDrawGridLines(true)
+                this.gridColor = gridColor
+                gridLineWidth = 0.5f
             }
+
+            // ----------------------------
+            // Y Axis (left)
+            // ----------------------------
+            binding.lineChart.axisLeft.apply {
+                this.textColor = textColor
+                textSize = 10f
+                setDrawGridLines(true)
+                this.gridColor = gridColor
+                gridLineWidth = 0.5f
+            }
+
+            // Disable right axis (cleaner look)
+            binding.lineChart.axisRight.isEnabled = false
+
+            // ----------------------------
+            // Legend + Description
+            // ----------------------------
+            binding.lineChart.legend.apply {
+                this.textColor = textColor
+            }
+
+            binding.lineChart.description.isEnabled = false
+
+            // ----------------------------
+            // General styling
+            // ----------------------------
+            binding.lineChart.setTouchEnabled(true)
+            binding.lineChart.setPinchZoom(true)
+            binding.lineChart.setScaleEnabled(true)
+            binding.lineChart.setBackgroundColor(android.graphics.Color.TRANSPARENT)
 
             binding.lineChart.invalidate()
 
-            // Populate personal best list
+            // ----------------------------
+            // Personal Bests
+            // ----------------------------
             val activities = withContext(Dispatchers.IO) {
                 dao.getActivitiesForExercise(exercise.id)
             }

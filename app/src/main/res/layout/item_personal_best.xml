@@ -3,33 +3,33 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="12dp"
+    android:paddingStart="12dp"
+    android:paddingEnd="12dp"
+    android:paddingTop="6dp"
+    android:paddingBottom="6dp"
     android:background="?attr/colorSurface"
-    android:layout_marginBottom="4dp"
-    android:elevation="2dp">
+    android:layout_marginBottom="2dp"
+    android:elevation="0dp">
 
+    <!-- Weight × Reps -->
     <TextView
         android:id="@+id/textOne"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="One"
+        android:layout_weight="1"
+        android:text="100 kg × 5"
         android:textStyle="bold"
-        android:layout_weight="1"
+        android:textSize="16sp"
         android:textColor="?android:textColorPrimary" />
 
-    <TextView
-        android:id="@+id/textTwo"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Two"
-        android:layout_weight="1"
-        android:textColor="?android:textColorPrimary" />
-
+    <!-- Date -->
     <TextView
         android:id="@+id/textDate"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Date"
-        android:layout_weight="1"
-        android:textColor="?android:textColorPrimary" />
+        android:text="16 Feb 2023"
+        android:textColor="?android:textColorSecondary"
+        android:textSize="13sp"
+        android:gravity="end" />
+
 </LinearLayout>

@@ -30,16 +30,44 @@
         app:layout_constraintTop_toBottomOf="@id/textExerciseName"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/recyclerViewPersonalBests"
+        app:layout_constraintBottom_toTopOf="@+id/dividerChart"
         app:layout_constraintHeight_percent="0.33" />
+
+    <!-- Divider between chart and PR section -->
+    <View
+        android:id="@+id/dividerChart"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginTop="8dp"
+        android:background="?android:attr/listDivider"
+        app:layout_constraintTop_toBottomOf="@id/lineChart"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- Personal Records Header -->
+    <TextView
+        android:id="@+id/textPersonalRecords"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Personal Records"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textColor="?android:textColorPrimary"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="12dp"
+        app:layout_constraintTop_toBottomOf="@id/dividerChart"
+        app:layout_constraintStart_toStartOf="parent"/>
 
     <!-- RecyclerView for Personal Bests -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewPersonalBests"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:padding="12dp"
-        app:layout_constraintTop_toBottomOf="@id/lineChart"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="12dp"
+        android:clipToPadding="false"
+        app:layout_constraintTop_toBottomOf="@id/textPersonalRecords"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
