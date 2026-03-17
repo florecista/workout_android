@@ -46,38 +46,97 @@ class ProgressDetailFragment : Fragment() {
         binding.recyclerViewPersonalBests.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerViewPersonalBests.adapter = adapter
 
-        loadVolumeData()
+        loadStrengthData()
 
         return binding.root
     }
+
     @SuppressLint("DefaultLocale")
-    private fun loadVolumeData() {
+    private fun loadStrengthData() {
         lifecycleScope.launch {
             val dao = AppDatabase.getDatabase(requireContext()).activityDao()
-            val volumePerSessions = withContext(Dispatchers.IO) {
-                dao.getVolumePerSessionForExercise(exercise.id)
+
+            // ----------------------------
+            // Load activities
+            // ----------------------------
+            val activities = withContext(Dispatchers.IO) {
+                dao.getActivitiesForExercise(exercise.id)
             }
 
-            val entries = volumePerSessions.mapIndexed { index, session ->
-                Entry(index.toFloat(), session.totalVolume.toFloat())
+            // Ensure chronological order (oldest → newest)
+            val sortedActivities = activities.sortedBy { it.timestamp }
+
+            // ----------------------------
+            // Group by session and get max weight (FILTERED)
+            // ----------------------------
+            val maxPerSession = sortedActivities
+                .groupBy { it.timestamp }
+                .map { (timestamp, acts) ->
+
+                    val maxWeight = acts
+                        .mapNotNull { it.weight }
+                        .filter { it > 20 } // ignore warmups
+                        .maxOrNull() ?: 0.0
+
+                    Pair(timestamp, maxWeight)
+                }
+                .sortedBy { it.first }
+
+            // ----------------------------
+            // Only keep progressive maxes
+            // ----------------------------
+            val progressiveMax = mutableListOf<Pair<Long, Double>>()
+            var currentMax = 0.0
+
+            for ((timestamp, weight) in maxPerSession) {
+                if (weight > currentMax) {
+                    currentMax = weight
+                    progressiveMax.add(timestamp to weight)
+                }
             }
 
-            val dataSet = LineDataSet(entries, "Training Volume")
-            dataSet.setDrawValues(false)
-            dataSet.setDrawCircles(false)
-            dataSet.lineWidth = 2f
+            // ----------------------------
+            // Chart entries
+            // ----------------------------
+            val entries = progressiveMax.mapIndexed { index, (_, weight) ->
+                Entry(index.toFloat(), weight.toFloat())
+            }
 
-            // ✅ Theme-aware line color (Material primary)
+            val dataSet = LineDataSet(entries, "Max Weight")
+
             val lineColor = ContextCompat.getColor(
                 requireContext(),
                 com.google.android.material.R.color.design_default_color_primary
             )
-            dataSet.color = lineColor
 
+            // 🔥 Styling (fixed circles)
+            dataSet.setDrawValues(false)
+            dataSet.setDrawCircles(true)
+            dataSet.setDrawCircleHole(true)
+            dataSet.setDrawFilled(false)
+
+            dataSet.lineWidth = 2f
+
+            dataSet.circleRadius = 6f
+            dataSet.circleHoleRadius = 3f
+
+            dataSet.color = lineColor
+            dataSet.setCircleColor(Color.WHITE)          // outer ring
+            dataSet.setCircleHoleColor(lineColor)        // inner fill
+
+            val lastIndex = entries.lastIndex
+            dataSet.setCircleColors(
+                entries.mapIndexed { index, _ ->
+                    if (index == lastIndex) Color.YELLOW else Color.WHITE
+                }
+            )
+
+            // Apply data
+            binding.lineChart.clear()
             binding.lineChart.data = LineData(dataSet)
 
             // ----------------------------
-            // Prepare theme-aware colors
+            // Theme-aware colors
             // ----------------------------
             val textColor = ContextCompat.getColor(
                 requireContext(),
@@ -92,8 +151,8 @@ class ProgressDetailFragment : Fragment() {
             // ----------------------------
             // X Axis (dates)
             // ----------------------------
-            val dateLabels = volumePerSessions.map {
-                val calendar = Calendar.getInstance().apply { timeInMillis = it.date }
+            val dateLabels = progressiveMax.map { (timestamp, _) ->
+                val calendar = Calendar.getInstance().apply { timeInMillis = timestamp }
                 val day = calendar.get(Calendar.DAY_OF_MONTH)
                 val month = calendar.get(Calendar.MONTH)
                 val year = calendar.get(Calendar.YEAR) % 100
@@ -121,7 +180,7 @@ class ProgressDetailFragment : Fragment() {
             }
 
             // ----------------------------
-            // Y Axis (left)
+            // Y Axis
             // ----------------------------
             binding.lineChart.axisLeft.apply {
                 this.textColor = textColor
@@ -131,16 +190,12 @@ class ProgressDetailFragment : Fragment() {
                 gridLineWidth = 0.5f
             }
 
-            // Disable right axis (cleaner look)
             binding.lineChart.axisRight.isEnabled = false
 
             // ----------------------------
             // Legend + Description
             // ----------------------------
-            binding.lineChart.legend.apply {
-                this.textColor = textColor
-            }
-
+            binding.lineChart.legend.isEnabled = false
             binding.lineChart.description.isEnabled = false
 
             // ----------------------------
@@ -149,16 +204,14 @@ class ProgressDetailFragment : Fragment() {
             binding.lineChart.setTouchEnabled(true)
             binding.lineChart.setPinchZoom(true)
             binding.lineChart.setScaleEnabled(true)
-            binding.lineChart.setBackgroundColor(android.graphics.Color.TRANSPARENT)
+            binding.lineChart.setBackgroundColor(Color.TRANSPARENT)
 
+            binding.lineChart.notifyDataSetChanged()
             binding.lineChart.invalidate()
 
             // ----------------------------
-            // Personal Bests
+            // Personal Bests (unchanged)
             // ----------------------------
-            val activities = withContext(Dispatchers.IO) {
-                dao.getActivitiesForExercise(exercise.id)
-            }
             val personalBests = calculatePersonalBests(exercise, activities)
             adapter.submitList(personalBests)
         }
