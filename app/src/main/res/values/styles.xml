@@ -1,20 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- Style for the calendar header (e.g., "July 2025") -->
-    <style name="CalendarHeaderText" parent="TextAppearance.MaterialComponents.Headline6">
-        <item name="android:textSize">20sp</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:textColor">#000000</item> <!-- optional: adjust to your theme -->
-    </style>
-
-    <style name="CalendarDateText" parent="TextAppearance.MaterialComponents.Body1">
-        <item name="android:textSize">16sp</item>
-    </style>
-
-    <style name="CalendarWeekText" parent="TextAppearance.MaterialComponents.Caption">
+    <!-- Calendar Header (e.g., "March 2026") -->
+    <style name="CalendarHeaderText" parent="TextAppearance.MaterialComponents.Body1">
         <item name="android:textSize">14sp</item>
         <item name="android:textStyle">bold</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+
+    <!-- Calendar Day Numbers -->
+    <style name="CalendarDateText" parent="TextAppearance.MaterialComponents.Body2">
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+
+    <!-- Calendar Weekday Labels (Sun, Mon, etc.) -->
+    <style name="CalendarWeekText" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="android:textSize">11sp</item>
+        <item name="android:textStyle">normal</item> <!-- important: remove bold -->
+        <item name="android:textColor">#888888</item> <!-- dim like iOS -->
     </style>
 
 </resources>

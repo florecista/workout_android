@@ -7,24 +7,34 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import info.matthewryan.workoutlogger.AppDatabase
-import info.matthewryan.workoutlogger.R
 import info.matthewryan.workoutlogger.databinding.FragmentHistoryBinding
+import info.matthewryan.workoutlogger.model.CalendarDayItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.ZoneId
+import java.util.*
 
 class HistoryFragment : Fragment() {
 
     private var _binding: FragmentHistoryBinding? = null
     private val binding get() = _binding!!
-    private lateinit var adapter: HistoryAdapter
-    private val db by lazy { AppDatabase.getDatabase(requireContext()) }
 
+    private lateinit var adapter: HistoryAdapter
+    private lateinit var calendarAdapter: CalendarAdapter
+
+    private val db by lazy { AppDatabase.getDatabase(requireContext()) }
     private val sessionDao by lazy { db.sessionDao() }
+
+    private val currentCalendar = Calendar.getInstance()
+    private var sessionDates: Set<String> = emptySet() // yyyy-MM-dd
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,10 +48,16 @@ class HistoryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.calendarView.setHeaderTextAppearance(R.style.CalendarHeaderText)
-        binding.calendarView.setDateTextAppearance(R.style.CalendarDateText)
-        binding.calendarView.setWeekDayTextAppearance(R.style.CalendarWeekText)
+        setupSessionList()
+        setupCalendar()
 
+        loadSessions()
+    }
+
+    // ---------------------------
+    // Session List
+    // ---------------------------
+    private fun setupSessionList() {
         adapter = HistoryAdapter(
             onDeleteClick = { sessionDisplay ->
                 lifecycleScope.launch {
@@ -65,74 +81,141 @@ class HistoryFragment : Fragment() {
         binding.recyclerViewHistory.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerViewHistory.adapter = adapter
 
-        // Attach ItemTouchHelper for swipe-to-delete
-        val itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
-            override fun onMove(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder
-            ): Boolean = false
+        val itemTouchHelper = ItemTouchHelper(
+            object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+                override fun onMove(
+                    recyclerView: RecyclerView,
+                    viewHolder: RecyclerView.ViewHolder,
+                    target: RecyclerView.ViewHolder
+                ) = false
 
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val position = viewHolder.adapterPosition
-                val sessionDisplay = adapter.currentList[position]
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                    val position = viewHolder.adapterPosition
+                    val sessionDisplay = adapter.currentList[position]
 
-                // Trigger the same delete logic
-                lifecycleScope.launch {
-                    withContext(Dispatchers.IO) {
-                        sessionDao.deleteSessionById(sessionDisplay.session.id)
+                    lifecycleScope.launch {
+                        withContext(Dispatchers.IO) {
+                            sessionDao.deleteSessionById(sessionDisplay.session.id)
+                        }
+
+                        val updatedList = adapter.currentList.toMutableList().apply {
+                            remove(sessionDisplay)
+                        }
+                        adapter.submitList(updatedList)
                     }
-
-                    val updatedList = adapter.currentList.toMutableList().apply {
-                        remove(sessionDisplay)
-                    }
-                    adapter.submitList(updatedList)
                 }
             }
-        })
-        itemTouchHelper.attachToRecyclerView(binding.recyclerViewHistory)
+        )
 
-        loadSessions()
+        itemTouchHelper.attachToRecyclerView(binding.recyclerViewHistory)
     }
 
+    // ---------------------------
+    // Calendar Setup
+    // ---------------------------
+    private fun setupCalendar() {
+        calendarAdapter = CalendarAdapter()
+
+        binding.calendarRecyclerView.layoutManager = GridLayoutManager(requireContext(), 7)
+        binding.calendarRecyclerView.adapter = calendarAdapter
+
+        binding.prevMonth.setOnClickListener {
+            currentCalendar.add(Calendar.MONTH, -1)
+            updateCalendar()
+        }
+
+        binding.nextMonth.setOnClickListener {
+            currentCalendar.add(Calendar.MONTH, 1)
+            updateCalendar()
+        }
+    }
+
+    private fun updateCalendar() {
+        // Update title
+        val formatter = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
+        binding.monthTitle.text = formatter.format(currentCalendar.time)
+
+        // Generate days
+        val days = generateCalendarDays(currentCalendar)
+        calendarAdapter.submitList(days)
+    }
+
+    private fun generateCalendarDays(calendar: Calendar): List<CalendarDayItem> {
+        val result = mutableListOf<CalendarDayItem>()
+
+        val tempCal = calendar.clone() as Calendar
+        tempCal.set(Calendar.DAY_OF_MONTH, 1)
+
+        val firstDayOfWeek = tempCal.get(Calendar.DAY_OF_WEEK) - 1
+        val daysInMonth = tempCal.getActualMaximum(Calendar.DAY_OF_MONTH)
+
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+        // Leading empty days
+        repeat(firstDayOfWeek) {
+            result.add(
+                CalendarDayItem(
+                    date = LocalDate.MIN,
+                    isCurrentMonth = false,
+                    hasWorkout = false
+                )
+            )
+        }
+
+        // Actual days
+        for (day in 1..daysInMonth) {
+            tempCal.set(Calendar.DAY_OF_MONTH, day)
+            val dateKey = dateFormat.format(tempCal.time)
+
+            val localDate = tempCal.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate()
+
+            result.add(
+                CalendarDayItem(
+                    date = localDate,
+                    isCurrentMonth = true,
+                    hasWorkout = sessionDates.contains(dateKey)
+                )
+            )
+        }
+
+        return result
+    }
+
+    // ---------------------------
+    // Data Loading
+    // ---------------------------
     private fun loadSessions() {
-        val sessionDao = db.sessionDao()
         val exerciseDao = db.exerciseDao()
 
         lifecycleScope.launch {
             val sessionDisplays = withContext(Dispatchers.IO) {
+
                 val sessionsWithActivities = sessionDao.getAllSessions()
 
                 sessionsWithActivities.map { sessionWithActivities ->
+
                     val exerciseNames = sessionWithActivities.activities
                         .mapNotNull { activity ->
                             exerciseDao.getExerciseById(activity.exerciseId)?.name
                         }
                         .distinct()
+                        .sorted()
 
                     SessionDisplay(sessionWithActivities.session, exerciseNames)
                 }
             }
 
-            val datesWithSessions = sessionDisplays.map {
-                val calendar = java.util.Calendar.getInstance().apply {
-                    timeInMillis = it.session.startTimestamp
-                }
+            // Convert to date keys for calendar dots
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
-                com.prolificinteractive.materialcalendarview.CalendarDay.from(
-                    calendar.get(java.util.Calendar.YEAR),
-                    calendar.get(java.util.Calendar.MONTH) + 1, // ✅ FIX HERE
-                    calendar.get(java.util.Calendar.DAY_OF_MONTH)
-                )
+            sessionDates = sessionDisplays.map {
+                dateFormat.format(Date(it.session.startTimestamp))
             }.toSet()
 
-            // ✅ Apply decorator (dots)
-            binding.calendarView.removeDecorators()
-            binding.calendarView.addDecorator(
-                SessionDayDecorator(datesWithSessions, requireContext())
-            )
+            updateCalendar()
 
-            // Existing behavior
             adapter.submitList(
                 sessionDisplays.sortedByDescending { it.session.startTimestamp }
             )

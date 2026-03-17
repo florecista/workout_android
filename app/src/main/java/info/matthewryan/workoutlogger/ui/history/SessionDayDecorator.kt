@@ -13,7 +13,7 @@ class SessionDayDecorator(
     context: Context
 ) : DayViewDecorator {
 
-    private val dotSpan = DotSpan(6f, ContextCompat.getColor(context, R.color.teal_200))
+    private val dotSpan = DotSpan(4f, ContextCompat.getColor(context, R.color.teal_200))
 
     override fun shouldDecorate(day: CalendarDay): Boolean {
         return dates.contains(day)

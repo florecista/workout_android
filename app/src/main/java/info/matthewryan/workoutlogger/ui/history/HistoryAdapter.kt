@@ -19,6 +19,7 @@ class HistoryAdapter(
 
     class SessionViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val sessionTitle: TextView = itemView.findViewById(R.id.session_title)
+        val sessionDate: TextView = itemView.findViewById(R.id.session_date)
         val exerciseList: TextView = itemView.findViewById(R.id.exercise_list)
         val deleteButton: View = itemView.findViewById(R.id.delete_button)
         val foregroundLayout: View = itemView.findViewById(R.id.foreground_layout) // ✅ add this
@@ -33,8 +34,17 @@ class HistoryAdapter(
     override fun onBindViewHolder(holder: SessionViewHolder, position: Int) {
         val item = getItem(position)
 
-        holder.sessionTitle.text = formatTimestamp(item.session.startTimestamp)
-        holder.exerciseList.text = item.exerciseNames.joinToString("\\n")
+        val date = Date(item.session.startTimestamp)
+
+        // LEFT: title
+        holder.sessionTitle.text = "Workout"
+
+        // RIGHT: date (you’ll need a new TextView for this)
+        val formatter = SimpleDateFormat("EEE, dd/MM/yyyy", Locale.getDefault())
+        holder.sessionDate.text = formatter.format(date)
+
+        // BELOW: exercises (comma-separated like HeavySet)
+        holder.exerciseList.text = item.exerciseNames.joinToString(", ")
 
         // ✅ Attach to foreground layout only
         holder.foregroundLayout.setOnClickListener {
@@ -49,7 +59,7 @@ class HistoryAdapter(
 
     private fun formatTimestamp(timestamp: Long): String {
         val date = Date(timestamp)
-        val formatter = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+        val formatter = SimpleDateFormat("EEE, dd/MM/yyyy", Locale.getDefault())
         return formatter.format(date)
     }
 }
