@@ -24,7 +24,6 @@ class ExerciseDetailFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val exerciseDao by lazy { AppDatabase.getDatabase(requireContext()).exerciseDao() }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -52,7 +51,6 @@ class ExerciseDetailFragment : Fragment() {
             binding.switchTimed.isChecked = false
             binding.switchFactory.isChecked = false
 
-            // No need to color initially
             setSwitchColor(binding.switchUnilateral, false)
             setSwitchColor(binding.switchTimed, false)
             setSwitchColor(binding.switchFactory, false)
@@ -66,17 +64,34 @@ class ExerciseDetailFragment : Fragment() {
             setSwitchColor(binding.switchTimed, isChecked)
         }
 
+        // ✅ NEW: Row click support (Material-style UX)
+        binding.rowUnilateral.setOnClickListener {
+            binding.switchUnilateral.isChecked = !binding.switchUnilateral.isChecked
+        }
+
+        binding.rowTimed.setOnClickListener {
+            binding.switchTimed.isChecked = !binding.switchTimed.isChecked
+        }
+
+        binding.rowFactory.setOnClickListener {
+            Toast.makeText(
+                requireContext(),
+                "Factory exercises cannot be modified",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+
         // ✅ Save button handler
         binding.fabSaveExercise.setOnClickListener {
             val name = binding.editTextExerciseName.text.toString().trim()
             if (name.isNotEmpty()) {
                 val updatedExercise = Exercise(
-                    id = exercise?.id ?: 0, // preserve ID for update
+                    id = exercise?.id ?: 0,
                     name = name,
                     factory = binding.switchFactory.isChecked,
                     isUnilateral = binding.switchUnilateral.isChecked,
                     isTimed = binding.switchTimed.isChecked,
-                    duration = exercise?.duration, // retain old duration if editing
+                    duration = exercise?.duration,
                     type = exercise?.type ?: ExerciseType.STRENGTH
                 )
 
