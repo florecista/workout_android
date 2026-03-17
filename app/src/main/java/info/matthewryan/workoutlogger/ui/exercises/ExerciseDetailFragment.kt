@@ -7,11 +7,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.widget.SwitchCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import info.matthewryan.workoutlogger.AppDatabase
 import info.matthewryan.workoutlogger.databinding.FragmentExerciseDetailBinding
+import info.matthewryan.workoutlogger.databinding.ViewSettingRowBinding
 import info.matthewryan.workoutlogger.model.Exercise
 import info.matthewryan.workoutlogger.model.ExerciseType
 import kotlinx.coroutines.Dispatchers
@@ -24,6 +26,7 @@ class ExerciseDetailFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val exerciseDao by lazy { AppDatabase.getDatabase(requireContext()).exerciseDao() }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -33,64 +36,45 @@ class ExerciseDetailFragment : Fragment() {
 
         val exercise = ExerciseDetailFragmentArgs.fromBundle(requireArguments()).exercise
 
-        if (exercise != null) {
-            // Edit mode
-            binding.editTextExerciseName.setText(exercise.name)
-            binding.switchUnilateral.isChecked = exercise.isUnilateral
-            binding.switchTimed.isChecked = exercise.isTimed
-            binding.switchFactory.isChecked = exercise.factory
+        // Set name
+        binding.editTextExerciseName.setText(exercise?.name ?: "")
 
-            // Green highlight when true
-            setSwitchColor(binding.switchUnilateral, exercise.isUnilateral)
-            setSwitchColor(binding.switchTimed, exercise.isTimed)
-            setSwitchColor(binding.switchFactory, exercise.factory)
-        } else {
-            // Add mode — start blank
-            binding.editTextExerciseName.setText("")
-            binding.switchUnilateral.isChecked = false
-            binding.switchTimed.isChecked = false
-            binding.switchFactory.isChecked = false
+        // Setup rows
+        binding.rowUnilateral.setTitle("Unilateral Exercise")
+        binding.rowUnilateral.setDescription(
+            "Counts volume for both sides when the weight represents one limb."
+        )
+        binding.rowUnilateral.isChecked = exercise?.isUnilateral ?: false
 
-            setSwitchColor(binding.switchUnilateral, false)
-            setSwitchColor(binding.switchTimed, false)
-            setSwitchColor(binding.switchFactory, false)
-        }
+        binding.rowTimed.setTitle("Timed Exercise")
+        binding.rowTimed.setDescription(
+            "Records duration instead of repetitions."
+        )
+        binding.rowTimed.isChecked = exercise?.isTimed ?: false
 
-        // Update color when toggled
-        binding.switchUnilateral.setOnCheckedChangeListener { _, isChecked ->
-            setSwitchColor(binding.switchUnilateral, isChecked)
-        }
-        binding.switchTimed.setOnCheckedChangeListener { _, isChecked ->
-            setSwitchColor(binding.switchTimed, isChecked)
-        }
-
-        // ✅ NEW: Row click support (Material-style UX)
-        binding.rowUnilateral.setOnClickListener {
-            binding.switchUnilateral.isChecked = !binding.switchUnilateral.isChecked
-        }
-
-        binding.rowTimed.setOnClickListener {
-            binding.switchTimed.isChecked = !binding.switchTimed.isChecked
-        }
-
-        binding.rowFactory.setOnClickListener {
-            Toast.makeText(
-                requireContext(),
-                "Factory exercises cannot be modified",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
+        binding.rowFactory.setTitle("Factory Exercise")
+        binding.rowFactory.setDescription(
+            "Included with the app and cannot be edited."
+        )
+        binding.rowFactory.isChecked = exercise?.factory ?: false
+        binding.rowFactory.isRowEnabled = false
 
         // ✅ Save button handler
         binding.fabSaveExercise.setOnClickListener {
             val name = binding.editTextExerciseName.text.toString().trim()
+
             if (name.isNotEmpty()) {
+
+                val unilateral = binding.rowUnilateral.isChecked
+                val timed = binding.rowTimed.isChecked
+                val factory = binding.rowFactory.isChecked
+
                 val updatedExercise = Exercise(
                     id = exercise?.id ?: 0,
                     name = name,
-                    factory = binding.switchFactory.isChecked,
-                    isUnilateral = binding.switchUnilateral.isChecked,
-                    isTimed = binding.switchTimed.isChecked,
+                    factory = factory,
+                    isUnilateral = unilateral,
+                    isTimed = timed,
                     duration = exercise?.duration,
                     type = exercise?.type ?: ExerciseType.STRENGTH
                 )
@@ -122,7 +106,36 @@ class ExerciseDetailFragment : Fragment() {
         return root
     }
 
-    private fun setSwitchColor(switch: androidx.appcompat.widget.SwitchCompat, isChecked: Boolean) {
+    private fun setupSettingRow(
+        row: ViewSettingRowBinding,
+        title: String,
+        description: String,
+        checked: Boolean,
+        enabled: Boolean = true
+    ) {
+        row.title.text = title
+        row.description.text = description
+        row.switchView.isChecked = checked
+        row.switchView.isEnabled = enabled
+
+        setSwitchColor(row.switchView, checked)
+
+        row.root.setOnClickListener {
+            if (enabled) {
+                val newValue = !row.switchView.isChecked
+                row.switchView.isChecked = newValue
+                setSwitchColor(row.switchView, newValue)
+            } else {
+                Toast.makeText(
+                    requireContext(),
+                    "Factory exercises cannot be modified",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+    private fun setSwitchColor(switch: SwitchCompat, isChecked: Boolean) {
         switch.thumbTintList = if (isChecked) {
             android.content.res.ColorStateList.valueOf(
                 resources.getColor(android.R.color.holo_green_dark, null)

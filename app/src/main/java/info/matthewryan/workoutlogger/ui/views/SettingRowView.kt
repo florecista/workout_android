@@ -3,6 +3,7 @@ package info.matthewryan.workoutlogger.ui.views
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.widget.SwitchCompat
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -60,5 +61,9 @@ class SettingRowView @JvmOverloads constructor(
                 else
                     resources.getColor(android.R.color.darker_gray, null)
             )
+    }
+
+    fun hideSwitch() {
+        binding.switchView.visibility = View.GONE
     }
 }

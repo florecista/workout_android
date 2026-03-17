@@ -38,154 +38,39 @@
         app:layout_constraintTop_toBottomOf="@id/textInputLayoutExerciseName"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="12dp">
 
-            <!-- Unilateral Row -->
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <!-- Unilateral -->
+            <info.matthewryan.workoutlogger.ui.views.SettingRowView
                 android:id="@+id/rowUnilateral"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingVertical="8dp"
-                android:clickable="true"
-                android:foreground="?attr/selectableItemBackground">
+                android:layout_height="wrap_content"/>
 
-                <TextView
-                    android:id="@+id/titleUnilateral"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:text="Unilateral Exercise"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/switchUnilateral"
-                    app:layout_constraintTop_toTopOf="parent"/>
-
-                <TextView
-                    android:id="@+id/descUnilateral"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:text="Counts volume for both sides when the weight represents one limb (e.g. dumbbells)."
-                    android:textSize="13sp"
-                    android:textColor="?android:textColorSecondary"
-                    app:layout_constraintStart_toStartOf="@id/titleUnilateral"
-                    app:layout_constraintEnd_toStartOf="@id/switchUnilateral"
-                    app:layout_constraintTop_toBottomOf="@id/titleUnilateral"/>
-
-                <androidx.appcompat.widget.SwitchCompat
-                    android:id="@+id/switchUnilateral"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:clickable="false"
-                    android:focusable="false"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"/>
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <!-- Divider -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="?attr/colorControlHighlight"/>
 
-            <!-- Timed Row -->
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <!-- Timed -->
+            <info.matthewryan.workoutlogger.ui.views.SettingRowView
                 android:id="@+id/rowTimed"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingVertical="8dp"
-                android:clickable="true"
-                android:foreground="?attr/selectableItemBackground">
+                android:layout_height="wrap_content"/>
 
-                <TextView
-                    android:id="@+id/titleTimed"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:text="Timed Exercise"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/switchTimed"
-                    app:layout_constraintTop_toTopOf="parent"/>
-
-                <TextView
-                    android:id="@+id/descTimed"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:text="Records duration instead of repetitions. Useful for planks, holds, or interval exercises."
-                    android:textSize="13sp"
-                    android:textColor="?android:textColorSecondary"
-                    app:layout_constraintStart_toStartOf="@id/titleTimed"
-                    app:layout_constraintEnd_toStartOf="@id/switchTimed"
-                    app:layout_constraintTop_toBottomOf="@id/titleTimed"/>
-
-                <androidx.appcompat.widget.SwitchCompat
-                    android:id="@+id/switchTimed"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:clickable="false"
-                    android:focusable="false"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"/>
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <!-- Divider -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="?attr/colorControlHighlight"/>
 
-            <!-- Factory Row -->
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <!-- Factory -->
+            <info.matthewryan.workoutlogger.ui.views.SettingRowView
                 android:id="@+id/rowFactory"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingVertical="8dp"
-                android:clickable="true"
-                android:foreground="?attr/selectableItemBackground">
-
-                <TextView
-                    android:id="@+id/titleFactory"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:text="Factory Exercise"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/switchFactory"
-                    app:layout_constraintTop_toTopOf="parent"/>
-
-                <TextView
-                    android:id="@+id/descFactory"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:text="Included with the app and cannot be edited."
-                    android:textSize="13sp"
-                    android:textColor="?android:textColorSecondary"
-                    app:layout_constraintStart_toStartOf="@id/titleFactory"
-                    app:layout_constraintEnd_toStartOf="@id/switchFactory"
-                    app:layout_constraintTop_toBottomOf="@id/titleFactory"/>
-
-                <androidx.appcompat.widget.SwitchCompat
-                    android:id="@+id/switchFactory"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:enabled="false"
-                    android:clickable="false"
-                    android:focusable="false"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"/>
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                android:layout_height="wrap_content"/>
 
         </LinearLayout>
 

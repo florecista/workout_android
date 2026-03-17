@@ -30,19 +30,8 @@ class HomeFragment : Fragment() {
 
         // Start session button logic
         binding.startSessionButton.setOnClickListener {
-            lifecycleScope.launch {
-                val newSession = Session(startTimestamp = System.currentTimeMillis())
-
-                val db = AppDatabase.getDatabase(requireContext())
-                val sessionId = withContext(Dispatchers.IO) {
-                    db.sessionDao().insert(newSession)
-                }
-
-                val bundle = Bundle().apply {
-                    putLong("sessionId", sessionId)
-                }
-                Navigation.findNavController(it).navigate(R.id.action_homeFragment_to_activityFragment, bundle)
-            }
+            Navigation.findNavController(it)
+                .navigate(R.id.action_homeFragment_to_activityFragment)
         }
 
         return root

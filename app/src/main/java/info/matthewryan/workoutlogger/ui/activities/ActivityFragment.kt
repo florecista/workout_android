@@ -17,6 +17,7 @@ import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.RequiresPermission
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -33,6 +34,7 @@ import info.matthewryan.workoutlogger.dao.DailyVolumeRow
 import info.matthewryan.workoutlogger.databinding.FragmentActivityBinding
 import info.matthewryan.workoutlogger.model.Activity
 import info.matthewryan.workoutlogger.model.ExerciseType
+import info.matthewryan.workoutlogger.model.Session
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -131,13 +133,24 @@ class ActivityFragment : Fragment() {
         btnEndSession.setOnClickListener { endSession() }
 
         btnLog.setOnClickListener {
-            val bundle = Bundle().apply { putLong("sessionId", sessionId) }
-            findNavController().navigate(R.id.action_activityFragment_to_sessionLogFragment, bundle)
+            if (sessionId != -1L) {
+                val bundle = Bundle().apply { putLong("sessionId", sessionId) }
+                findNavController().navigate(R.id.action_activityFragment_to_sessionLogFragment, bundle)
+            } else {
+                Toast.makeText(requireContext(), "Log an activity first", Toast.LENGTH_SHORT).show()
+            }
         }
 
         btnSessionHistory.setOnClickListener {
-            val bundle = Bundle().apply { putLong("sessionId", sessionId) }
-            findNavController().navigate(R.id.action_activityFragment_to_sessionLogFragment, bundle)
+            if (sessionId != -1L) {
+                val bundle = Bundle().apply { putLong("sessionId", sessionId) }
+                findNavController().navigate(
+                    R.id.action_activityFragment_to_sessionLogFragment,
+                    bundle
+                )
+            } else {
+                Toast.makeText(requireContext(), "Log an activity first", Toast.LENGTH_SHORT).show()
+            }
         }
 
         btnExerciseHistory.setOnClickListener {
@@ -206,8 +219,12 @@ class ActivityFragment : Fragment() {
                 selectedExerciseType = exercise.type
                 selectedExerciseId = exercise.id
 
-                val count = withContext(Dispatchers.IO) {
-                    db.activityDao().countActivitiesByExerciseInSession(sessionId, exercise.id)
+                val count = if (sessionId != -1L) {
+                    withContext(Dispatchers.IO) {
+                        db.activityDao().countActivitiesByExerciseInSession(sessionId, exercise.id)
+                    }
+                } else {
+                    0
                 }
 
                 editTextSet.setText((count + 1).toString())
@@ -416,9 +433,16 @@ class ActivityFragment : Fragment() {
         }
 
         val timestamp = System.currentTimeMillis()
-        if (sessionId == -1L) return
 
         lifecycleScope.launch {
+
+            if (sessionId == -1L) {
+                sessionId = withContext(Dispatchers.IO) {
+                    db.sessionDao().insert(
+                        Session(startTimestamp = System.currentTimeMillis())
+                    )
+                }
+            }
             val exercise = withContext(Dispatchers.IO) {
                 exerciseDao.getExerciseByName(selectedExerciseName)
             }
@@ -546,7 +570,11 @@ class ActivityFragment : Fragment() {
 
     private fun updateLogButtonState() {
         lifecycleScope.launch {
-            val count = activityViewModel.countActivitiesInSession(sessionId)
+            val count = if (sessionId != -1L) {
+                activityViewModel.countActivitiesInSession(sessionId)
+            } else {
+                0
+            }
             btnLog.isEnabled = count > 0
         }
     }

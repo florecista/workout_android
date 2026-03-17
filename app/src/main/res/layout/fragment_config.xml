@@ -1,123 +1,148 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurface">
 
     <LinearLayout
         android:orientation="vertical"
         android:padding="16dp"
-        android:paddingTop="32dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <!-- Units of Measure -->
+        <!-- ===== Preferences ===== -->
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Units of Measure"
+            android:text="Preferences"
             android:textStyle="bold"
-            android:paddingTop="16dp"
-            android:paddingBottom="4dp" />
-
-        <RadioGroup
-            android:id="@+id/radioGroupUnits"
-            android:orientation="horizontal"
+            android:textSize="18sp"
+            android:textColor="?attr/colorOnSurface"
+            android:paddingTop="8dp"
+            android:paddingBottom="12dp"
+            android:alpha="0.9"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"/>
 
-            <RadioButton
-                android:id="@+id/radioKg"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Kilograms"
-                android:checked="true" />
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp">
 
-            <RadioButton
-                android:id="@+id/radioLbs"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Pounds" />
-        </RadioGroup>
+            <LinearLayout
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-        <!-- Clear Activities -->
+                <!-- Units -->
+                <TextView
+                    android:text="Units of Measure"
+                    android:textStyle="bold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <RadioGroup
+                    android:id="@+id/radioGroupUnits"
+                    android:orientation="horizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <RadioButton
+                        android:id="@+id/radioKg"
+                        android:text="Kilograms"
+                        android:checked="true"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                    <RadioButton
+                        android:id="@+id/radioLbs"
+                        android:text="Pounds"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+                </RadioGroup>
+
+                <!-- Spacer -->
+                <View
+                    android:layout_height="16dp"
+                    android:layout_width="match_parent"/>
+
+                <!-- Theme -->
+                <TextView
+                    android:text="App Theme"
+                    android:textStyle="bold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <RadioGroup
+                    android:id="@+id/radioGroupTheme"
+                    android:orientation="horizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <RadioButton android:id="@+id/radioLight" android:text="Light"/>
+                    <RadioButton android:id="@+id/radioDark" android:text="Dark"/>
+                    <RadioButton android:id="@+id/radioSystem" android:text="System"/>
+                </RadioGroup>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- ===== Data Actions ===== -->
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Clear Activities"
+            android:text="Data"
             android:textStyle="bold"
+            android:textSize="16sp"
             android:paddingTop="24dp"
-            android:paddingBottom="4dp" />
-
-        <Button
-            android:id="@+id/buttonClearActivities"
+            android:paddingBottom="8dp"
             android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Clear" />
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp">
 
-        <!-- Factory Reset -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Factory Reset"
-            android:textStyle="bold"
-            android:paddingTop="24dp"
-            android:paddingBottom="4dp" />
+            <LinearLayout
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-        <Button
-            android:id="@+id/buttonFactoryReset"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Reset"
-            android:enabled="false" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/buttonImportCsv"
+                    android:text="Import Workout Data"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
 
-        <!-- Import CSV -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Import Workout Data"
-            android:textStyle="bold"
-            android:paddingTop="24dp"
-            android:paddingBottom="4dp" />
+                <View
+                    android:layout_height="12dp"
+                    android:layout_width="match_parent"/>
 
-        <Button
-            android:id="@+id/buttonImportCsv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Import CSV" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/buttonClearActivities"
+                    android:text="Clear Activities"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
 
-        <!-- Theme Selector -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="App Theme"
-            android:textStyle="bold"
-            android:paddingTop="24dp"
-            android:paddingBottom="4dp" />
+                <View
+                    android:layout_height="12dp"
+                    android:layout_width="match_parent"/>
 
-        <RadioGroup
-            android:id="@+id/radioGroupTheme"
-            android:orientation="horizontal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/buttonFactoryReset"
+                    android:text="Factory Reset"
+                    style="@style/Widget.MaterialComponents.Button"
+                    android:backgroundTint="@color/design_default_color_error"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
 
-            <RadioButton
-                android:id="@+id/radioLight"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Light" />
-
-            <RadioButton
-                android:id="@+id/radioDark"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Dark" />
-
-            <RadioButton
-                android:id="@+id/radioSystem"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="System" />
-        </RadioGroup>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>
 </ScrollView>
