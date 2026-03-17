@@ -131,11 +131,11 @@ class HistoryFragment : Fragment() {
     }
 
     private fun updateCalendar() {
-        // Update title
-        val formatter = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
-        binding.monthTitle.text = formatter.format(currentCalendar.time)
+        _binding?.let { binding ->
+            val formatter = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
+            binding.monthTitle.text = formatter.format(currentCalendar.time)
+        }
 
-        // Generate days
         val days = generateCalendarDays(currentCalendar)
         calendarAdapter.submitList(days)
     }
@@ -189,7 +189,7 @@ class HistoryFragment : Fragment() {
     private fun loadSessions() {
         val exerciseDao = db.exerciseDao()
 
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             val sessionDisplays = withContext(Dispatchers.IO) {
 
                 val sessionsWithActivities = sessionDao.getAllSessions()
@@ -207,6 +207,9 @@ class HistoryFragment : Fragment() {
                 }
             }
 
+            // 🔒 Bail out if view is gone
+            val binding = _binding ?: return@launch
+
             // Convert to date keys for calendar dots
             val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
@@ -214,6 +217,7 @@ class HistoryFragment : Fragment() {
                 dateFormat.format(Date(it.session.startTimestamp))
             }.toSet()
 
+            // Safe call
             updateCalendar()
 
             adapter.submitList(
