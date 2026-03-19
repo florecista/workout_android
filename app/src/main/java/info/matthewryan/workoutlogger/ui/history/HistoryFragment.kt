@@ -190,6 +190,7 @@ class HistoryFragment : Fragment() {
         }
 
         val days = generateCalendarDays(currentCalendar)
+        calendarAdapter.selectedDate = selectedDate
         calendarAdapter.submitList(days)
     }
 
