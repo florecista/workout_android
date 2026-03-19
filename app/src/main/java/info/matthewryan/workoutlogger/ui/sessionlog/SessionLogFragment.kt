@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import info.matthewryan.workoutlogger.AppDatabase
 import info.matthewryan.workoutlogger.databinding.FragmentSessionLogBinding
@@ -37,16 +38,28 @@ class SessionLogFragment : Fragment() {
 
         Log.d("SessionLog", "Received sessionId: $sessionId")
 
-        adapter = SessionLogAdapter(emptyList()) { activityWithExercise ->
-            lifecycleScope.launch {
-                withContext(Dispatchers.IO) {
-                    AppDatabase.getDatabase(requireContext())
-                        .activityDao()
-                        .deleteActivity(activityWithExercise.activity) // ✅ fixed
+        adapter = SessionLogAdapter(
+            emptyList(),
+            onDelete = { activityWithExercise ->
+                lifecycleScope.launch {
+                    withContext(Dispatchers.IO) {
+                        AppDatabase.getDatabase(requireContext())
+                            .activityDao()
+                            .deleteActivity(activityWithExercise.activity)
+                    }
+                    loadActivities()
                 }
-                loadActivities() // Reload after deletion
+            },
+            onClick = { activityWithExercise ->
+
+                val action = SessionLogFragmentDirections
+                    .actionSessionLogFragmentToEditActivityFragment(
+                        activityWithExercise.activity.id
+                    )
+
+                findNavController().navigate(action)
             }
-        }
+        )
 
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(requireContext())
@@ -65,6 +78,11 @@ class SessionLogFragment : Fragment() {
             }
             adapter.updateData(activities)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        loadActivities()
     }
 
     override fun onDestroyView() {

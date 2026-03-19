@@ -1,5 +1,6 @@
 package info.matthewryan.workoutlogger.ui.history
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -9,10 +10,10 @@ import info.matthewryan.workoutlogger.databinding.ItemActivityBinding
 import info.matthewryan.workoutlogger.model.ActivityWithExercise
 import info.matthewryan.workoutlogger.model.ExerciseType
 import java.util.Locale
-import kotlin.math.floor
 
-class SessionActivityAdapter :
-    ListAdapter<ActivityWithExercise, SessionActivityAdapter.ViewHolder>(DiffCallback()) {
+class SessionActivityAdapter(
+    private val onClick: (ActivityWithExercise) -> Unit   // ✅ NEW
+) : ListAdapter<ActivityWithExercise, SessionActivityAdapter.ViewHolder>(DiffCallback()) {
 
     inner class ViewHolder(private val binding: ItemActivityBinding) :
         RecyclerView.ViewHolder(binding.root) {
@@ -38,11 +39,21 @@ class SessionActivityAdapter :
             }
 
             binding.activityDetails.text = details
+
+            // ✅ NEW: click listener
+            binding.foregroundLayout.setOnClickListener {
+                Log.d("CLICK_TEST", "CLICKED ${item.activity.id}")
+                onClick(item)
+            }
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val binding = ItemActivityBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding = ItemActivityBinding.inflate(
+            LayoutInflater.from(parent.context),
+            parent,
+            false
+        )
         return ViewHolder(binding)
     }
 

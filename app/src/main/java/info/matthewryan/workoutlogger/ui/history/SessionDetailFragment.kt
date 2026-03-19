@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import info.matthewryan.workoutlogger.AppDatabase
 import info.matthewryan.workoutlogger.databinding.FragmentSessionDetailBinding
@@ -19,7 +20,8 @@ class SessionDetailFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val activityDao by lazy { AppDatabase.getDatabase(requireContext()).activityDao() }
-    private val exerciseDao by lazy { AppDatabase.getDatabase(requireContext()).exerciseDao() }
+
+    private lateinit var adapter: SessionActivityAdapter   // ✅ NEW
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -30,18 +32,38 @@ class SessionDetailFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val sessionId = SessionDetailFragmentArgs.fromBundle(requireArguments()).sessionId
 
-        val adapter = SessionActivityAdapter()
+        adapter = SessionActivityAdapter { activityWithExercise ->
+
+            val action = SessionDetailFragmentDirections
+                .actionSessionDetailFragmentToEditActivityFragment(
+                    activityWithExercise.activity.id
+                )
+
+            findNavController().navigate(action)
+        }
+
         binding.recyclerViewActivities.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerViewActivities.adapter = adapter
 
+        reloadActivities() // ✅ initial load
+    }
+
+    private fun reloadActivities() {
+        val sessionId = SessionDetailFragmentArgs.fromBundle(requireArguments()).sessionId
+
         lifecycleScope.launch {
             val activities = withContext(Dispatchers.IO) {
-                activityDao.getActivitiesForSession(sessionId).sortedBy { it.activity.timestamp }
+                activityDao.getActivitiesForSession(sessionId)
+                    .sortedBy { it.activity.timestamp }
             }
             adapter.submitList(activities)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        reloadActivities() // ✅ refresh after edit
     }
 
     override fun onDestroyView() {

@@ -12,7 +12,8 @@ import info.matthewryan.workoutlogger.model.ActivityWithExercise
 
 class SessionLogAdapter(
     private var activities: List<ActivityWithExercise>,
-    private val onDelete: (ActivityWithExercise) -> Unit
+    private val onDelete: (ActivityWithExercise) -> Unit,
+    private val onClick: (ActivityWithExercise) -> Unit
 ) : RecyclerView.Adapter<SessionLogAdapter.ViewHolder>() {
 
     private val viewBinderHelper = ViewBinderHelper()
@@ -28,7 +29,6 @@ class SessionLogAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = activities[position]
 
-        // Uniquely identify each swipe layout by Activity ID
         viewBinderHelper.bind(holder.swipeLayout, item.activity.id.toString())
 
         val setIndex = position + 1
@@ -40,6 +40,11 @@ class SessionLogAdapter(
 
         holder.deleteButton.setOnClickListener {
             onDelete(item)
+        }
+
+        val foreground = holder.itemView.findViewById<View>(R.id.foreground_layout)
+        foreground.setOnClickListener {
+            onClick(item)
         }
     }
 

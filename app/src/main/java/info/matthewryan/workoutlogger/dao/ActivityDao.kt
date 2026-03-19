@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Update
 import info.matthewryan.workoutlogger.model.Activity
 import info.matthewryan.workoutlogger.model.ActivityWithExercise
 import info.matthewryan.workoutlogger.model.VolumePerSession
@@ -112,4 +113,7 @@ interface ActivityDao {
     )
     """)
     fun getMaxSessionVolumeForExercise(exerciseId: Int): Double?
+
+    @Update
+    fun update(activity: Activity)
 }

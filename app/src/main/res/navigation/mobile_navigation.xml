@@ -83,6 +83,20 @@
         <argument
             android:name="sessionId"
             app:argType="long" />
+
+        <action
+            android:id="@+id/action_sessionDetailFragment_to_editActivityFragment"
+            app:destination="@id/editActivityFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/editActivityFragment"
+        android:name="info.matthewryan.workoutlogger.ui.activities.EditActivityFragment"
+        android:label="Edit Activity">
+
+        <argument
+            android:name="activityId"
+            app:argType="long" />
     </fragment>
 
     <!-- Activity Fragment (New) -->
@@ -120,7 +134,12 @@
         android:id="@+id/navigation_session_log"
         android:name="info.matthewryan.workoutlogger.ui.sessionlog.SessionLogFragment"
         android:label="Session Log"
-        tools:layout="@layout/fragment_session_log" />
+        tools:layout="@layout/fragment_session_log">
+
+        <action
+            android:id="@+id/action_sessionLogFragment_to_editActivityFragment"
+            app:destination="@id/editActivityFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_config"
