@@ -18,6 +18,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
+import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.*
@@ -35,6 +36,9 @@ class HistoryFragment : Fragment() {
 
     private val currentCalendar = Calendar.getInstance()
     private var sessionDates: Set<String> = emptySet() // yyyy-MM-dd
+
+    private var selectedDate: LocalDate? = null
+    private var allSessions: List<SessionDisplay> = emptyList()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -65,10 +69,15 @@ class HistoryFragment : Fragment() {
                         sessionDao.deleteSessionById(sessionDisplay.session.id)
                     }
 
-                    val updatedList = adapter.currentList.toMutableList().apply {
-                        remove(sessionDisplay)
+                    // ✅ Update master list
+                    allSessions = allSessions.filter { it != sessionDisplay }
+
+                    // ✅ Respect current filter state
+                    if (selectedDate == null) {
+                        adapter.submitList(allSessions)
+                    } else {
+                        filterSessions()
                     }
-                    adapter.submitList(updatedList)
                 }
             },
             onItemClick = { sessionDisplay ->
@@ -83,6 +92,7 @@ class HistoryFragment : Fragment() {
 
         val itemTouchHelper = ItemTouchHelper(
             object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+
                 override fun onMove(
                     recyclerView: RecyclerView,
                     viewHolder: RecyclerView.ViewHolder,
@@ -98,10 +108,15 @@ class HistoryFragment : Fragment() {
                             sessionDao.deleteSessionById(sessionDisplay.session.id)
                         }
 
-                        val updatedList = adapter.currentList.toMutableList().apply {
-                            remove(sessionDisplay)
+                        // ✅ Update master list
+                        allSessions = allSessions.filter { it != sessionDisplay }
+
+                        // ✅ Respect filter state
+                        if (selectedDate == null) {
+                            adapter.submitList(allSessions)
+                        } else {
+                            filterSessions()
                         }
-                        adapter.submitList(updatedList)
                     }
                 }
             }
@@ -119,15 +134,53 @@ class HistoryFragment : Fragment() {
         binding.calendarRecyclerView.layoutManager = GridLayoutManager(requireContext(), 7)
         binding.calendarRecyclerView.adapter = calendarAdapter
 
+        // ✅ Handle day clicks
+        calendarAdapter.onDayClick = { day ->
+            if (day.isCurrentMonth) {
+
+                selectedDate = if (selectedDate == day.date) null else day.date
+
+                updateCalendar()
+
+                if (selectedDate == null) {
+                    adapter.submitList(allSessions)
+                } else {
+                    filterSessions()
+                }
+            }
+        }
+
         binding.prevMonth.setOnClickListener {
+            if (_binding == null) return@setOnClickListener
             currentCalendar.add(Calendar.MONTH, -1)
             updateCalendar()
         }
 
         binding.nextMonth.setOnClickListener {
+            if (_binding == null) return@setOnClickListener
             currentCalendar.add(Calendar.MONTH, 1)
             updateCalendar()
         }
+    }
+
+    private fun filterSessions() {
+        val selected = selectedDate ?: return
+
+        val filtered = allSessions.filter { session ->
+            val calendar = Calendar.getInstance().apply {
+                timeInMillis = session.session.startTimestamp
+            }
+
+            val sessionDate = LocalDate.of(
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH) + 1,
+                calendar.get(Calendar.DAY_OF_MONTH)
+            )
+
+            sessionDate == selected
+        }
+
+        adapter.submitList(filtered)
     }
 
     private fun updateCalendar() {
@@ -220,9 +273,9 @@ class HistoryFragment : Fragment() {
             // Safe call
             updateCalendar()
 
-            adapter.submitList(
-                sessionDisplays.sortedByDescending { it.session.startTimestamp }
-            )
+            allSessions = sessionDisplays.sortedByDescending { it.session.startTimestamp }
+
+            adapter.submitList(allSessions)
         }
     }
 

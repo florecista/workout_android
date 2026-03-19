@@ -12,6 +12,8 @@ class CalendarAdapter : RecyclerView.Adapter<CalendarAdapter.DayViewHolder>() {
 
     private val items = mutableListOf<CalendarDayItem>()
 
+    var onDayClick: ((CalendarDayItem) -> Unit)? = null
+
     fun submitList(newItems: List<CalendarDayItem>) {
         items.clear()
         items.addAll(newItems)
@@ -36,6 +38,10 @@ class CalendarAdapter : RecyclerView.Adapter<CalendarAdapter.DayViewHolder>() {
 
         holder.dayText.alpha = if (item.isCurrentMonth) 1f else 0.3f
         holder.dot.visibility = if (item.hasWorkout) View.VISIBLE else View.GONE
+
+        holder.itemView.setOnClickListener {
+            onDayClick?.invoke(item)
+        }
     }
 
     override fun getItemCount() = items.size
