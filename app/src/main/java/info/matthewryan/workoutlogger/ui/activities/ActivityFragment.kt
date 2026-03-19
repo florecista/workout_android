@@ -1,6 +1,6 @@
 package info.matthewryan.workoutlogger.ui.activities
 
-import android.Manifest
+import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
 import android.os.VibrationEffect
@@ -11,18 +11,15 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
-import androidx.annotation.RequiresPermission
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
@@ -53,10 +50,8 @@ class ActivityFragment : Fragment() {
     private lateinit var editTextOne: EditText
     private lateinit var editTextTwo: EditText
     private lateinit var btnEndSession: Button
-    private lateinit var btnLog: Button
     private lateinit var btnDelete: Button
     private lateinit var btnSave: Button
-
     private lateinit var btnSessionHistory: Button
 
     private lateinit var btnExerciseHistory: Button
@@ -102,7 +97,6 @@ class ActivityFragment : Fragment() {
         editTextOne = binding.editTextOne
         editTextTwo = binding.editTextTwo
         btnEndSession = binding.btnEndSession
-        btnLog = binding.btnLog
         btnDelete = binding.btnDelete
         btnSave = binding.btnSave
         btnSessionHistory = binding.btnSessionHistory
@@ -130,15 +124,23 @@ class ActivityFragment : Fragment() {
         )
         inputButtons.forEach { (button, value) -> button.setOnClickListener { appendToFocusedEditText(value) } }
 
-        btnEndSession.setOnClickListener { endSession() }
+        btnEndSession.setOnClickListener {
 
-        btnLog.setOnClickListener {
-            if (sessionId != -1L) {
-                val bundle = Bundle().apply { putLong("sessionId", sessionId) }
-                findNavController().navigate(R.id.action_activityFragment_to_sessionLogFragment, bundle)
-            } else {
-                Toast.makeText(requireContext(), "Log an activity first", Toast.LENGTH_SHORT).show()
+            // 🟢 No session yet → just leave
+            if (sessionId == -1L) {
+                findNavController().navigate(R.id.navigation_home)
+                return@setOnClickListener
             }
+
+            // 🔵 Active session → confirm
+            AlertDialog.Builder(requireContext())
+                .setTitle("End session?")
+                .setMessage("This will finish your workout.")
+                .setPositiveButton("End") { _, _ ->
+                    endSession()
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
         }
 
         btnSessionHistory.setOnClickListener {
@@ -246,9 +248,6 @@ class ActivityFragment : Fragment() {
                 }
             }
         }
-
-        // set log button enabled/disabled
-        updateLogButtonState()
 
         // Collect chart data; it auto-updates with selected exercise
         viewLifecycleOwner.lifecycleScope.launch {
@@ -527,8 +526,6 @@ class ActivityFragment : Fragment() {
             // NEW: refresh the session volume line after save
             lastSessionVolume = sessionVol
             updateSessionVolumeLine(sessionVol)
-
-            updateLogButtonState()
         }
     }
 
@@ -554,28 +551,13 @@ class ActivityFragment : Fragment() {
     }
 
     private fun endSession() {
-        if (sessionId == -1L) {
-            println("No session ID found to end.")
-            return
-        }
-
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
                 db.sessionDao().markSessionAsEnded(sessionId, System.currentTimeMillis())
             }
-            Navigation.findNavController(requireView())
-                .navigate(R.id.action_activityFragment_to_homeFragment)
-        }
-    }
 
-    private fun updateLogButtonState() {
-        lifecycleScope.launch {
-            val count = if (sessionId != -1L) {
-                activityViewModel.countActivitiesInSession(sessionId)
-            } else {
-                0
-            }
-            btnLog.isEnabled = count > 0
+            Toast.makeText(requireContext(), "Session ended", Toast.LENGTH_SHORT).show()
+            findNavController().navigate(R.id.navigation_home)
         }
     }
 
@@ -685,7 +667,11 @@ class ActivityFragment : Fragment() {
 
     override fun onStop() {
         super.onStop()
-        autoCloseSessionIfNotAlready()
+
+        // Only auto-close if user didn't explicitly exit
+        if (requireActivity().isFinishing) {
+            autoCloseSessionIfNotAlready()
+        }
     }
 
     private fun autoCloseSessionIfNotAlready() {

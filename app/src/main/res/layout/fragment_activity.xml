@@ -45,7 +45,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:padding="6dp"
-            android:weightSum="2">
+            android:weightSum="3">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSessionHistory"
@@ -67,13 +67,23 @@
                 android:textColor="@color/dark_text"
                 app:backgroundTint="@color/light_gray"/>
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnEndSession"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="4dp"
+                android:text="EXIT"
+                android:textColor="@color/dark_text"
+                app:backgroundTint="@color/pastel_purple"/>
+
         </LinearLayout>
 
         <!-- Chart -->
         <com.github.mikephil.charting.charts.LineChart
             android:id="@+id/chart1"
             android:layout_width="match_parent"
-            android:layout_height="232dp"
+            android:layout_height="235dp"
             android:layout_marginBottom="4dp"/>
 
         <!-- Exercise Selector -->
@@ -243,60 +253,26 @@
                 android:text="."/>
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnEndSession"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_columnWeight="1"
-                android:layout_rowWeight="1"
-                android:textStyle="bold"
-                android:text="EXIT"
-                android:textColor="@color/dark_text"
-                app:backgroundTint="@color/pastel_purple"/>
-
-        </GridLayout>
-
-
-        <!-- Action Buttons -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="8dp"
-            android:layout_marginBottom="8dp"
-            android:weightSum="3">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnLog"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_weight="1"
-                android:layout_margin="4dp"
-                android:text="SESSION"
-                android:textColor="@color/dark_text"
-                app:backgroundTint="@color/light_gray"/>
-
-            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDelete"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
-                android:layout_weight="1"
-                android:layout_margin="4dp"
-                android:text="BACKSPACE"
-                android:textColor="@color/dark_text"
+                android:layout_columnWeight="1"
+                android:text="⌫"
+                android:textStyle="bold"
                 app:backgroundTint="@color/pastel_red"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSave"
                 android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_weight="1"
-                android:layout_margin="4dp"
+                android:layout_height="56dp"
+                android:layout_columnSpan="3"
+                android:layout_columnWeight="1"
+                android:layout_marginTop="8dp"
                 android:text="LOG SET"
+                android:textStyle="bold"
                 android:textColor="@color/dark_text"
                 app:backgroundTint="@color/pastel_green"/>
-
-        </LinearLayout>
-
+        </GridLayout>
 
     </LinearLayout>
 
