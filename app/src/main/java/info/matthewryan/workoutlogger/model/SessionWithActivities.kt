@@ -5,9 +5,11 @@ import androidx.room.Relation
 
 data class SessionWithActivities(
     @Embedded val session: Session,
+
     @Relation(
+        entity = Activity::class,
         parentColumn = "id",
         entityColumn = "sessionId"
     )
-    val activities: List<Activity>
+    val activities: List<ActivityWithExercise>
 )

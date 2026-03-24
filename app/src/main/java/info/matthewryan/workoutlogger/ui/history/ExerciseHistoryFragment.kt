@@ -85,9 +85,11 @@ class ExerciseHistoryFragment : Fragment() {
 
                 sessionsWithActivities
                     .flatMap { it.activities }
-                    .filter { it.exerciseId == exerciseId }
-                    .sortedByDescending { it.timestamp }
-                    .forEachIndexed { index, activity ->
+                    .filter { it.activity.exerciseId == exerciseId }
+                    .sortedByDescending { it.activity.timestamp }
+                    .forEachIndexed { index, activityWithExercise ->
+
+                        val activity = activityWithExercise.activity
 
                         val date = dateFormatter.format(Date(activity.timestamp))
                         val time = timeFormatter.format(Date(activity.timestamp))

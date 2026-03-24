@@ -251,9 +251,7 @@ class HistoryFragment : Fragment() {
                 sessionsWithActivities.map { sessionWithActivities ->
 
                     val exerciseNames = sessionWithActivities.activities
-                        .mapNotNull { activity ->
-                            exerciseDao.getExerciseById(activity.exerciseId)?.name
-                        }
+                        .map { it.exercise.name }
                         .distinct()
                         .sorted()
 

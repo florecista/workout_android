@@ -1,0 +1,106 @@
+APP
+└── MainActivity
+    ├── NavHost (mobile_navigation) :contentReference[oaicite:0]{index=0}
+    └── BottomNavigation (menu)
+
+        ├── Home
+        │   └── HomeFragment
+        │       └── fragment_home.xml :contentReference[oaicite:1]{index=1}
+        │           └── [Button] Start Session
+        │               └── → Activity
+
+        ├── Activity (Session / Workout)
+        │   └── ActivityFragment
+        │       └── fragment_activity.xml :contentReference[oaicite:2]{index=2}
+        │           ├── Chart (LineChart)
+        │           │   └── Marker View
+        │           │       └── view_chart_marker.xml :contentReference[oaicite:3]{index=3}
+        │           ├── Exercise Selector (Dropdown)
+        │           ├── Input Fields (Set / Weight / Reps)
+        │           ├── Number Pad
+        │           ├── Toolbar Buttons
+        │           │   ├── Session History → (likely History)
+        │           │   ├── Exercise History → ExerciseHistory
+        │           │   └── Exit → Home
+        │           └── → Session Log
+
+        ├── Exercises
+        │   └── ExerciseFragment
+        │       └── fragment_exercise.xml :contentReference[oaicite:4]{index=4}
+        │           ├── Search Bar
+        │           ├── RecyclerView
+        │           │   └── item_exercise.xml :contentReference[oaicite:5]{index=5}
+        │           └── FAB (Add Exercise)
+        │               └── → Exercise Detail
+
+        │       └── ExerciseDetailFragment
+        │           └── fragment_exercise_detail.xml :contentReference[oaicite:6]{index=6}
+        │               ├── Name Input
+        │               ├── Settings Card
+        │               │   └── view_setting_row.xml :contentReference[oaicite:7]{index=7}
+        │               └── Save FAB
+
+        ├── Progress
+        │   └── ProgressFragment
+        │       └── fragment_progress.xml :contentReference[oaicite:8]{index=8}
+        │           ├── Search Bar
+        │           ├── RecyclerView
+        │           │   ├── item_progress_header.xml :contentReference[oaicite:9]{index=9}
+        │           │   └── item_progress.xml :contentReference[oaicite:10]{index=10}
+        │           └── → Progress Detail
+
+        │       └── ProgressDetailFragment
+        │           └── fragment_progress_detail.xml :contentReference[oaicite:11]{index=11}
+        │               ├── Chart
+        │               │   └── view_chart_marker.xml :contentReference[oaicite:12]{index=12}
+        │               ├── Toggle (Strength / Volume)
+        │               └── RecyclerView (Personal Records)
+        │                   └── item_personal_best.xml :contentReference[oaicite:13]{index=13}
+
+        ├── History (Sessions)
+        │   └── HistoryFragment
+        │       └── fragment_history.xml :contentReference[oaicite:14]{index=14}
+        │           ├── Calendar Header
+        │           ├── Calendar Grid
+        │           │   └── item_calendar_day.xml :contentReference[oaicite:15]{index=15}
+        │           └── RecyclerView (Sessions)
+        │               └── item_session_history.xml :contentReference[oaicite:16]{index=16}
+        │                   └── → Session Detail
+
+        │       └── SessionDetailFragment
+        │           └── fragment_session_detail.xml :contentReference[oaicite:17]{index=17}
+        │               ├── RecyclerView (Activities)
+        │               │   └── item_activity.xml :contentReference[oaicite:18]{index=18}
+        │               └── → Edit Activity
+
+        │       └── EditActivityFragment
+        │           └── fragment_edit_activity.xml :contentReference[oaicite:19]{index=19}
+        │               ├── Exercise Name
+        │               ├── Reps / Weight Inputs
+        │               └── Save Button
+
+        ├── Exercise History
+        │   └── ExerciseHistoryFragment
+        │       └── fragment_exercise_history.xml :contentReference[oaicite:20]{index=20}
+        │           ├── RecyclerView
+        │           │   ├── item_exercise_history_date.xml :contentReference[oaicite:21]{index=21}
+        │           │   └── item_exercise_history_activity.xml :contentReference[oaicite:22]{index=22}
+        │           └── → Session Detail
+
+        ├── Session Log
+        │   └── SessionLogFragment
+        │       └── fragment_session_log.xml :contentReference[oaicite:23]{index=23}
+        │           ├── RecyclerView
+        │           │   └── item_activity.xml :contentReference[oaicite:24]{index=24}
+        │           └── → Edit Activity
+
+        └── Config
+            └── ConfigFragment
+                └── fragment_config.xml :contentReference[oaicite:25]{index=25}
+                    ├── Preferences
+                    │   ├── Units (kg/lbs)
+                    │   └── Theme
+                    └── Data Actions
+                        ├── Import CSV
+                        ├── Clear Activities
+                        └── Factory Reset
