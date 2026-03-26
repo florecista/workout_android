@@ -65,6 +65,48 @@
 
     </LinearLayout>
 
+    <!-- Previous Session Card -->
+    <LinearLayout
+        android:id="@+id/previousSessionCard"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp"
+        android:background="@drawable/card_background"
+        android:alpha="0.9"
+        app:layout_constraintTop_toBottomOf="@id/lastSessionCard"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="12dp">
+
+        <TextView
+            android:id="@+id/previousSessionLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Previous Session"
+            android:textSize="13sp"
+            android:alpha="0.6"/>
+
+        <TextView
+            android:id="@+id/previousSessionDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sun, May 4"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginTop="2dp"/>
+
+        <TextView
+            android:id="@+id/previousSessionExercises"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Bench Press • Chin Row • Front Raise"
+            android:textSize="13sp"
+            android:layout_marginTop="4dp"
+            android:alpha="0.7"/>
+
+    </LinearLayout>
+
     <!-- Start Button -->
     <Button
         android:id="@+id/startSessionButton"

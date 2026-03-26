@@ -30,14 +30,18 @@ class HomeFragment : Fragment() {
         val root: View = binding.root
 
         lifecycleScope.launch {
-            val sessionWithActivities = withContext(Dispatchers.IO) {
+            val sessions = withContext(Dispatchers.IO) {
                 AppDatabase.getDatabase(requireContext())
                     .sessionDao()
-                    .getLastSessionWithActivities()
+                    .getLastTwoSessions()
             }
 
-            sessionWithActivities?.let {
-                showLastSession(it)
+            if (sessions.isNotEmpty()) {
+                showLastSession(sessions[0])
+            }
+
+            if (sessions.size > 1) {
+                showPreviousSession(sessions[1])
             }
         }
 
@@ -48,6 +52,21 @@ class HomeFragment : Fragment() {
         }
 
         return root
+    }
+
+    private fun showPreviousSession(sessionWithActivities: SessionWithActivities) {
+        val session = sessionWithActivities.session
+
+        // You’ll need new views in XML for this (or reuse layout later)
+        binding.previousSessionDate.text = session.getFormattedDate()
+
+        val exerciseNames = sessionWithActivities.activities
+            .sortedBy { it.activity.timestamp }
+            .map { it.exercise.name }
+            .distinct()
+
+        binding.previousSessionExercises.text =
+            exerciseNames.take(3).joinToString(" • ")
     }
 
     private fun showLastSession(sessionWithActivities: SessionWithActivities) {

@@ -22,6 +22,10 @@ interface SessionDao {
     @Query("SELECT * FROM session ORDER BY startTimestamp DESC LIMIT 1")
     fun getLastSessionWithActivities(): SessionWithActivities?
 
+    @Transaction
+    @Query("SELECT * FROM session ORDER BY startTimestamp DESC LIMIT 2")
+    fun getLastTwoSessions(): List<SessionWithActivities>
+
     @Insert
     fun insert(session: Session): Long
 

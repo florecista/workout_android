@@ -23,6 +23,10 @@ class SessionActivityAdapter(
             val exerciseName = item.exercise?.name ?: "Unknown"
             binding.activityTitle.text = "Set $setNumber: $exerciseName"
 
+            val timeFormatter = java.text.SimpleDateFormat("HH:mm", Locale.getDefault())
+            val time = timeFormatter.format(java.util.Date(item.activity.timestamp))
+            binding.activityTime.text = time
+
             val type = item.exercise?.type
             val details = when (type) {
                 ExerciseType.CARDIO -> {
